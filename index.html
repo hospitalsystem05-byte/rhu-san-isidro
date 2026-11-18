@@ -1,0 +1,177 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RHU San Isidro | Healthcare System</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f1f5f9;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: #087e8b;
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 38px;
+            margin-bottom: 10px;
+        }
+
+        header h1 {
+            font-size: 26px;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        main {
+            flex: 1;
+            width: 90%;
+            max-width: 950px;
+            margin: 45px auto;
+            text-align: center;
+        }
+
+        main h2 {
+            margin-bottom: 12px;
+            font-size: 25px;
+        }
+
+        .description {
+            color: #64748b;
+            margin-bottom: 35px;
+            line-height: 1.6;
+        }
+
+        .portals {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .portal {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+
+        .portal .icon {
+            font-size: 42px;
+            margin-bottom: 15px;
+        }
+
+        .portal h3 {
+            margin-bottom: 10px;
+            font-size: 19px;
+        }
+
+        .portal p {
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 22px;
+        }
+
+        .portal a {
+            display: inline-block;
+            background: #087e8b;
+            color: white;
+            text-decoration: none;
+            padding: 12px 22px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .portal a:hover {
+            background: #06616b;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">✚</div>
+        <h1>RHU San Isidro</h1>
+        <p>Rural Health Unit Management System</p>
+    </header>
+
+    <main>
+        <h2>Welcome to RHU San Isidro</h2>
+
+        <p class="description">
+            Please select your designated portal
+            to access the healthcare management system.
+        </p>
+
+        <div class="portals">
+
+            <div class="portal">
+                <div class="icon">🩺</div>
+                <h3>Doctor Portal</h3>
+                <p>
+                    Access patient information and
+                    healthcare management functions.
+                </p>
+                <a href="pc12.html">Open Doctor Portal</a>
+            </div>
+
+            <div class="portal">
+                <div class="icon">⚙️</div>
+                <h3>Admin Portal</h3>
+                <p>
+                    Manage system administration
+                    and healthcare records.
+                </p>
+                <a href="adminportal.html">Open Admin Portal</a>
+            </div>
+
+            <div class="portal">
+                <div class="icon">🏥</div>
+                <h3>Patient Portal</h3>
+                <p>
+                    Access patient services
+                    and personal healthcare information.
+                </p>
+                <a href="pc13.html">Open Patient Portal</a>
+            </div>
+
+        </div>
+    </main>
+
+    <footer>
+        © 2026 RHU San Isidro | Healthcare Management System
+    </footer>
+
+</body>
+</html>
