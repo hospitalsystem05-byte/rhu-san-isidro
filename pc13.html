@@ -1,0 +1,3408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0284c7">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>RHU San Isidro Medical Center - Patient Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=Times+New+Roman&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                        body: ['Inter', 'sans-serif'],
+                        serif: ['Times New Roman', 'serif'],
+                    },
+                    colors: {
+                        rhuBlue: {
+                            50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9',
+                            600: '#0284c7', 700: '#0369a1', 800: '#075985', 900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * {
+            box-shadow: none !important;
+            filter: none !important;
+            backdrop-filter: none !important;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+            overscroll-behavior-y: none;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        #loginView {
+            background-image: url('https://iili.io/nRC92Re.webp');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+
+        #loginView::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.35);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        #loginView > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .solid-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+        }
+
+        .custom-input {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .custom-input:focus {
+            background-color: #ffffff;
+            border-color: #0284c7;
+            outline: 2px solid #0284c7;
+        }
+
+        .custom-input:disabled {
+            background-color: #e2e8f0;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .custom-input.input-error {
+            border-color: #dc2626;
+            background-color: #fef2f2;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.25s ease-out forwards;
+        }
+
+        #bottomNav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999;
+            pointer-events: auto;
+            padding: 8px 12px;
+            padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+            background: linear-gradient(to top, #f1f5f9 60%, transparent);
+        }
+
+        #bottomNavInner {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            padding: 0.5rem;
+            max-width: 560px;
+            margin: 0 auto;
+        }
+
+        .bottom-nav-item.active { color: #0284c7; }
+        .bottom-nav-item.active .nav-icon {
+            background-color: #e0f2fe;
+            color: #0284c7;
+        }
+        .bottom-nav-item.active .nav-label { color: #0284c7; }
+
+        #dashboardView {
+            padding-bottom: 120px;
+        }
+
+        .feed-post-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            overflow: hidden;
+            width: 100%;
+            max-width: 100%;
+            display: block;
+        }
+
+        .feed-post-image-wrapper {
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+            background-color: #f1f5f9;
+            display: block;
+            line-height: 0;
+        }
+
+        .feed-post-image-wrapper img {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-height: 420px;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        select.custom-input {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1rem;
+            padding-right: 2rem;
+        }
+
+        .age-warning {
+            display: none;
+            margin-top: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .age-warning.show {
+            display: flex;
+        }
+
+        #notifPanel {
+            position: fixed;
+            top: 64px;
+            right: 8px;
+            left: 8px;
+            max-width: 420px;
+            margin-left: auto;
+            z-index: 10000;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .field-error {
+            display: none;
+            margin-top: 0.375rem;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            color: #dc2626;
+        }
+        .field-error.show { display: block; }
+
+        .qr-box {
+            background: #ffffff;
+            border: 2px solid #0284c7;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            display: inline-block;
+        }
+        .qr-rambol {
+            font-family: 'Courier New', monospace;
+            font-size: 1.75rem;
+            font-weight: 900;
+            letter-spacing: 0.35em;
+            color: #0284c7;
+            background: #f0f9ff;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: 2px dashed #0ea5e9;
+            text-align: center;
+        }
+
+        /* ========= CALENDAR PICKER STYLES ========= */
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+        .cal-day-name {
+            text-align: center;
+            font-size: 10px;
+            font-weight: 800;
+            color: #64748b;
+            padding: 4px 0;
+            text-transform: uppercase;
+        }
+        .cal-cell {
+            aspect-ratio: 1 / 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            position: relative;
+            border: 1.5px solid transparent;
+            color: #334155;
+        }
+        .cal-cell.empty {
+            cursor: default;
+            color: #cbd5e1;
+            border-color: transparent;
+        }
+        .cal-cell.past {
+            color: #cbd5e1;
+            cursor: not-allowed;
+            background: #f8fafc;
+        }
+        .cal-cell.no-schedule {
+            color: #cbd5e1;
+            cursor: not-allowed;
+            background: #f1f5f9;
+        }
+        .cal-cell.available {
+            background: #dcfce7;
+            color: #15803d;
+            border-color: #86efac;
+        }
+        .cal-cell.available:hover {
+            background: #bbf7d0;
+            transform: scale(1.04);
+        }
+        .cal-cell.fully-booked {
+            background: #fee2e2;
+            color: #991b1b;
+            border-color: #fca5a5;
+            cursor: not-allowed;
+            text-decoration: line-through;
+        }
+        .cal-cell.today {
+            box-shadow: inset 0 0 0 2px #0284c7;
+        }
+        .cal-cell.selected {
+            background: #0284c7 !important;
+            color: #ffffff !important;
+            border-color: #0369a1 !important;
+            transform: scale(1.06);
+            box-shadow: 0 0 0 3px rgba(2,132,199,0.25);
+        }
+        .cal-cell .cal-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: currentColor;
+            margin-top: 2px;
+        }
+        .cal-legend-dot {
+            width: 10px; height: 10px; border-radius: 3px; display: inline-block;
+        }
+
+        /* ========= MEDICAL CERTIFICATE STYLES ========= */
+        .cert-view-wrapper {
+            background-color: #ffffff;
+            border: 2px solid #0f766e;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            font-family: 'Times New Roman', serif;
+        }
+        .cert-view-header {
+            background-color: #ffffff;
+            border-bottom: 2px solid #0f766e;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .cert-view-header img {
+            height: 64px;
+            width: auto;
+            object-fit: contain;
+        }
+        .cert-view-header .title-block {
+            flex: 1;
+        }
+        .cert-view-header .title-block p {
+            font-size: 0.625rem;
+            font-weight: 700;
+            color: #0f766e;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin: 0;
+            line-height: 1.3;
+        }
+        .cert-view-header .title-block h2 {
+            font-size: 1.125rem;
+            font-weight: 800;
+            color: #0f766e;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin: 2px 0 0 0;
+            line-height: 1.2;
+        }
+        .cert-view-header .title-block h3 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #0f766e;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin: 4px 0 0 0;
+            line-height: 1.2;
+        }
+        .cert-view-body {
+            padding: 1.5rem;
+            background-color: #ffffff;
+            font-family: 'Times New Roman', serif;
+            color: #1e293b;
+            font-size: 0.875rem;
+            line-height: 2.2;
+        }
+        .cert-view-body .cert-line {
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+        }
+        .cert-view-body .cert-line .label {
+            font-weight: 400;
+            white-space: nowrap;
+        }
+        .cert-view-body .cert-line .value {
+            border-bottom: 1px solid #64748b;
+            padding: 0 0.25rem;
+            min-width: 80px;
+            font-weight: 600;
+            color: #0f172a;
+        }
+        .cert-view-body .cert-line .value.short {
+            min-width: 60px;
+        }
+        .cert-view-body .cert-line .value.long {
+            flex: 1;
+            min-width: 150px;
+        }
+        .cert-view-footer {
+            display: flex;
+            justify-content: flex-end;
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #e2e8f0;
+            background-color: #f8fafc;
+        }
+        .cert-view-footer .sig-block {
+            text-align: center;
+            font-family: 'Times New Roman', serif;
+            color: #1e293b;
+        }
+        .cert-view-footer .sig-block .name {
+            font-weight: 700;
+            font-size: 0.875rem;
+            border-top: 1px solid #1e293b;
+            padding-top: 0.25rem;
+            margin-top: 2rem;
+            min-width: 220px;
+        }
+        .cert-view-footer .sig-block .role {
+            font-size: 0.75rem;
+            font-weight: 400;
+            margin-top: 0.125rem;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen w-full flex flex-col relative overflow-x-hidden antialiased select-none bg-slate-100">
+
+    <!-- Toast -->
+    <div id="toast" class="fixed top-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-96 z-[9999] hidden solid-card rounded-2xl p-4 border-l-4 border-l-rhuBlue-600 animate-fade-in">
+        <div class="flex items-start gap-3">
+            <div id="toast-icon-bg" class="w-9 h-9 rounded-xl bg-rhuBlue-100 flex items-center justify-center text-rhuBlue-600 flex-shrink-0 mt-0.5">
+                <i id="toast-icon" class="fas fa-circle-check text-base"></i>
+            </div>
+            <div class="flex-1 pr-2">
+                <h4 id="toast-title" class="font-bold text-slate-900 text-sm">Notice</h4>
+                <p id="toast-msg" class="text-xs text-slate-600 mt-0.5 leading-relaxed"></p>
+            </div>
+            <button onclick="hideToast()" class="text-slate-400 hover:text-slate-600 p-1">
+                <i class="fas fa-times text-sm"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Notification Panel -->
+    <div id="notifPanel" class="hidden solid-card rounded-2xl p-3 animate-fade-in">
+        <div class="flex items-center justify-between px-2 pb-2 border-b border-slate-200">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-bell text-rhuBlue-700"></i>
+                <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wide">Notifications</h3>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="markAllNotificationsRead()" class="text-[10px] font-bold uppercase text-rhuBlue-700 hover:text-rhuBlue-900">Mark all read</button>
+                <button onclick="closeNotifPanel()" class="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+        </div>
+        <div id="notifList" class="pt-2 space-y-2"></div>
+        <div id="notifEmpty" class="py-8 text-center">
+            <i class="fas fa-bell-slash text-2xl text-slate-300 mb-2"></i>
+            <p class="text-xs font-bold text-slate-500 uppercase">No notifications</p>
+        </div>
+    </div>
+
+    <!-- ================= LOGIN VIEW ================= -->
+    <main id="loginView" class="relative z-10 w-full min-h-screen min-h-[100dvh] flex flex-col justify-center items-center p-4 animate-fade-in">
+        <div class="solid-card rounded-3xl p-5 sm:p-6 text-slate-800 w-full max-w-[360px] my-auto">
+            
+            <div class="flex flex-col items-center text-center">
+                <img 
+                    src="https://iili.io/nRCHCIs.png" 
+                    alt="RHU San Isidro Logo" 
+                    class="w-16 h-16 sm:w-20 sm:h-20 object-contain mb-2"
+                    onerror="this.onerror=null; this.src='https://placehold.co/120x120/0284c7/ffffff?text=RHU+Logo';"
+                />
+
+                <h1 class="text-sm sm:text-base font-extrabold tracking-tight text-slate-900 uppercase font-sans leading-tight">
+                    RHU SAN ISIDRO MEDICAL CENTER
+                </h1>
+                
+                <p class="text-[10px] font-bold tracking-widest text-rhuBlue-700 uppercase mt-1 mb-3">
+                    PATIENT PORTAL APPS
+                </p>
+
+                <div class="w-full border-t border-slate-200 pt-3 mb-3">
+                    <h2 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider">PATIENT LOGIN</h2>
+                    <p class="text-[11px] font-medium text-slate-500 mt-0.5">
+                        Please login using your patient number
+                    </p>
+                </div>
+            </div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-3">
+                
+                <div>
+                    <label for="patientNumber" class="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                        Email / Patient Number
+                    </label>
+                    <div class="relative flex items-center">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                            <i class="fas fa-id-card text-xs"></i>
+                        </div>
+                        <input 
+                            type="text" 
+                            id="patientNumber" 
+                            name="patientNumber" 
+                            required
+                            placeholder="Enter Email or Patient Number" 
+                            class="custom-input w-full pl-9 pr-3 py-2.5 rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none h-11"
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <label for="password" class="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                        Password
+                    </label>
+                    <div class="relative flex items-center">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                            <i class="fas fa-lock text-xs"></i>
+                        </div>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            required
+                            placeholder="Enter Password" 
+                            class="custom-input w-full pl-9 pr-10 py-2.5 rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none h-11"
+                        />
+                        <button 
+                            type="button" 
+                            onclick="togglePasswordVisibility()" 
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none"
+                            aria-label="Toggle password visibility"
+                        >
+                            <i id="eyeIcon" class="fas fa-eye text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button 
+                    type="submit" 
+                    id="submitBtn"
+                    class="w-full h-11 mt-1 rounded-xl bg-rhuBlue-600 hover:bg-rhuBlue-700 text-white font-bold text-xs transition-all duration-200 flex items-center justify-center gap-2 uppercase tracking-wide cursor-pointer"
+                >
+                    <span>Login</span>
+                    <i class="fas fa-arrow-right text-[10px]"></i>
+                </button>
+
+                <button 
+                    type="button" 
+                    onclick="switchToRegisterView()" 
+                    class="w-full h-11 rounded-xl bg-slate-100 hover:bg-slate-200 text-rhuBlue-800 font-bold text-[11px] uppercase tracking-wider border border-slate-300 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
+                >
+                    <i class="fas fa-user-plus text-rhuBlue-600 text-xs"></i>
+                    <span>Create New Account</span>
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <!-- ================= REGISTRATION VIEW ================= -->
+    <main id="registerView" class="relative z-10 w-full max-w-[540px] mx-auto hidden animate-fade-in py-4 px-4 min-h-screen">
+        <div class="solid-card rounded-3xl p-5 sm:p-7 text-slate-800 my-auto">
+            
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-200">
+                <div class="flex items-center gap-3">
+                    <img 
+                        src="https://iili.io/nRCHCIs.png" 
+                        alt="RHU Logo" 
+                        class="w-10 h-10 object-contain"
+                        onerror="this.onerror=null; this.src='https://placehold.co/80x80/0284c7/ffffff?text=RHU';"
+                    />
+                    <div>
+                        <h2 class="text-base font-extrabold text-slate-900 uppercase tracking-tight">New Patient Registration</h2>
+                        <p class="text-[11px] font-semibold text-rhuBlue-700 uppercase">RHU San Isidro Medical Center</p>
+                    </div>
+                </div>
+                <button onclick="switchToLoginView()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center border border-slate-300">
+                    <i class="fas fa-arrow-left text-xs"></i>
+                </button>
+            </div>
+
+            <div id="ageRequirementNotice" class="mb-4 p-3 rounded-xl bg-sky-50 border border-sky-200 text-sky-800 text-[11px] font-semibold flex items-start gap-2">
+                <i class="fas fa-circle-exclamation text-sm mt-0.5 flex-shrink-0"></i>
+                <span>Patients aged <strong>0–11</strong> may register without ID photos. Patients aged 12 and older must provide valid ID photos.</span>
+            </div>
+
+            <form id="registrationForm" onsubmit="handleRegistrationSubmit(event)" class="space-y-5">
+                
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <div class="flex items-center gap-2 text-rhuBlue-700 font-extrabold text-xs uppercase tracking-wider">
+                        <i class="fas fa-user-circle text-sm"></i>
+                        <span>Information</span>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">FULL Name</label>
+                        <input type="text" id="regFullName" required placeholder="e.g. Juan Dela Cruz" class="custom-input w-full px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-800">
+                        <p id="fullNameError" class="field-error">Please enter a valid real name (letters, spaces, . - ' only). No numbers or bad words.</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Complete Address</label>
+                        <input type="text" id="regAddress" required placeholder="Street, Barangay, San Isidro, Nueva Ecija" class="custom-input w-full px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-800">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Contact number</label>
+                            <input type="tel" id="regContact" required placeholder="0917 123 4567" class="custom-input w-full px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-800">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">GENDER</label>
+                            <select id="regGender" required class="custom-input w-full px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-800 bg-white">
+                                <option value="">Select gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Birthday</label>
+                            <input type="date" id="regBirthday" required onchange="calculateAge()" class="custom-input w-full px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-800">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Current age</label>
+                            <input type="text" id="regAge" readonly placeholder="Auto-calculated" class="custom-input w-full px-3 py-2.5 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 cursor-not-allowed">
+                        </div>
+                    </div>
+
+                    <div id="ageWarning" class="age-warning">
+                        <i class="fas fa-triangle-exclamation text-sm mt-0.5 flex-shrink-0"></i>
+                        <span>Please enter a valid birthday that is not in the future.</span>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Email address</label>
+                        <input type="email" id="regInfoEmail" required placeholder="patient@example.com" class="custom-input w-full px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-800">
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <div class="flex items-center gap-2 text-rhuBlue-700 font-extrabold text-xs uppercase tracking-wider">
+                        <i class="fas fa-id-card text-sm"></i>
+                        <span>Verification</span>
+                    </div>
+
+                    <div id="idVerificationFields" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Choose valid ID</label>
+                        <select id="regValidIdType" required class="custom-input w-full px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-800 bg-white">
+                            <option value="">Select ID type</option>
+                            <option value="National ID">National ID</option>
+                            <option value="Voters ID">Voters ID</option>
+                            <option value="Drivers License">Drivers License</option>
+                            <option value="Others">Others</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">TAKE A picture you and your id</label>
+                        <div class="border-2 border-dashed border-slate-300 rounded-xl p-3 bg-white text-center">
+                            <input type="file" id="picUserWithId" accept="image/*" capture="user" required class="hidden" onchange="previewImage(this, 'previewUserWithId')">
+                            <label for="picUserWithId" class="cursor-pointer flex flex-col items-center justify-center gap-1">
+                                <div id="previewUserWithId" class="w-full h-24 bg-slate-100 rounded-lg border border-slate-200 flex flex-col items-center justify-center text-slate-400 overflow-hidden">
+                                    <i class="fas fa-camera text-xl mb-1 text-rhuBlue-600"></i>
+                                    <span class="text-[11px] font-bold text-slate-600">Tap to capture / upload selfie with ID</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Take a picture of your valid id</label>
+                        <div class="border-2 border-dashed border-slate-300 rounded-xl p-3 bg-white text-center">
+                            <input type="file" id="picValidId" accept="image/*" capture="environment" required class="hidden" onchange="previewImage(this, 'previewValidId')">
+                            <label for="picValidId" class="cursor-pointer flex flex-col items-center justify-center gap-1">
+                                <div id="previewValidId" class="w-full h-24 bg-slate-100 rounded-lg border border-slate-200 flex flex-col items-center justify-center text-slate-400 overflow-hidden">
+                                    <i class="fas fa-id-badge text-xl mb-1 text-rhuBlue-600"></i>
+                                    <span class="text-[11px] font-bold text-slate-600">Tap to capture / upload ID card photo</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <div class="flex items-center gap-2 text-rhuBlue-700 font-extrabold text-xs uppercase tracking-wider">
+                        <i class="fas fa-key text-sm"></i>
+                        <span>Create credentials</span>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Email address</label>
+                        <input type="email" id="regCredEmail" required placeholder="Re-enter login email" class="custom-input w-full px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-800">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Password</label>
+                        <input type="password" id="regCredPassword" required placeholder="Create portal password" class="custom-input w-full px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-800">
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button 
+                        type="submit" 
+                        id="regSubmitBtn"
+                        class="w-full h-12 rounded-xl bg-rhuBlue-600 hover:bg-rhuBlue-700 text-white font-bold text-xs uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                        <span>Submit registration</span>
+                        <i class="fas fa-paper-plane text-xs"></i>
+                    </button>
+                    
+                    <button 
+                        type="button" 
+                        onclick="switchToLoginView()" 
+                        class="w-full mt-2 py-2 text-center text-xs font-bold text-slate-500 hover:text-slate-800"
+                    >
+                        Back to Login
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- ================= DASHBOARD VIEW ================= -->
+    <main id="dashboardView" class="relative z-10 w-full hidden animate-fade-in min-h-screen bg-slate-100">
+
+        <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
+            <div class="max-w-[600px] mx-auto px-4 py-3">
+                <div class="flex items-center justify-between gap-3">
+                    <img 
+                        src="https://iili.io/nRCHCIs.png" 
+                        alt="RHU San Isidro Logo" 
+                        class="w-11 h-11 object-contain flex-shrink-0"
+                        onerror="this.onerror=null; this.src='https://placehold.co/80x80/0284c7/ffffff?text=RHU';"
+                    />
+                    <div class="flex-1 min-w-0">
+                        <h1 class="text-sm sm:text-base font-extrabold text-slate-900 uppercase tracking-tight leading-tight truncate">
+                            RHU SAN ISIDRO
+                        </h1>
+                        <p class="text-[11px] font-bold text-rhuBlue-700 uppercase tracking-widest leading-tight">
+                            NOW SERVING
+                        </p>
+                    </div>
+                    <button 
+                        onclick="toggleNotifPanel()"
+                        class="relative w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 border border-slate-200 flex-shrink-0"
+                        aria-label="Notifications"
+                    >
+                        <i class="fas fa-bell text-base"></i>
+                        <span id="notifBadge" class="absolute top-2 right-2 min-w-[16px] h-4 px-1 bg-red-500 rounded-full border border-white text-white text-[9px] font-bold items-center justify-center hidden">0</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="max-w-[600px] mx-auto px-4 py-4">
+
+            <div id="tab-home" class="tab-pane space-y-4">
+                <div class="solid-card rounded-3xl p-5">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-9 h-9 rounded-xl bg-rhuBlue-100 flex items-center justify-center text-rhuBlue-700">
+                                    <i class="fas fa-user-doctor text-base"></i>
+                                </div>
+                                <span id="homeAvailabilityBadge" class="inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-600 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-full">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                    Checking schedules
+                                </span>
+                            </div>
+                            <h2 class="text-base font-extrabold text-slate-900 leading-snug">
+                                Doctor availability
+                            </h2>
+                            <p class="text-xs font-medium text-slate-500 mt-1 leading-relaxed">
+                                Check doctors with open appointment schedules.
+                            </p>
+                        </div>
+                    </div>
+
+                    <p class="text-[11px] font-medium text-slate-500 mt-3 mb-3">Select a doctor below to start an appointment with that doctor selected.</p>
+                    <div id="homeDoctorsListContainer" class="space-y-2.5">
+                        <div class="text-center py-4"><p class="text-xs text-gray-400">Loading doctors...</p></div>
+                    </div>
+                </div>
+
+                <div class="solid-card rounded-3xl p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-9 h-9 rounded-xl bg-rhuBlue-100 flex items-center justify-center text-rhuBlue-700">
+                                <i class="fas fa-newspaper text-base"></i>
+                            </div>
+                            <h2 class="text-sm font-extrabold text-slate-900 uppercase tracking-tight">
+                                NEW FEED
+                            </h2>
+                        </div>
+                        <button 
+                            onclick="showToast('Refresh', 'Feed is up to date.')"
+                            class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 border border-slate-200"
+                            aria-label="Refresh feed"
+                        >
+                            <i class="fas fa-rotate-right text-xs"></i>
+                        </button>
+                    </div>
+
+                    <div id="patientFeedContainer">
+                        <div class="flex flex-col items-center justify-center py-10 text-center">
+                            <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3 border border-slate-200">
+                                <i class="fas fa-inbox text-2xl"></i>
+                            </div>
+                            <p class="text-sm font-extrabold text-slate-700 uppercase tracking-wide">
+                                POSTS NOT FOUND
+                            </p>
+                            <p class="text-xs font-medium text-slate-500 mt-1">
+                                No announcements or updates yet.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="h-4"></div>
+            </div>
+
+            <div id="tab-doctors" class="tab-pane hidden space-y-4">
+                <div class="solid-card rounded-3xl p-5">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-2xl bg-rhuBlue-100 flex items-center justify-center text-rhuBlue-700">
+                            <i class="fas fa-user-doctor text-lg"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-base font-extrabold text-slate-900 tracking-tight">
+                                Welcome to doctors page
+                            </h2>
+                            <p class="text-[11px] font-bold text-rhuBlue-700 uppercase tracking-widest">
+                                RHU San Isidro
+                            </p>
+                        </div>
+                    </div>
+
+                    <div id="doctorsListContainer" class="space-y-2.5">
+                        <div class="text-center py-8">
+                            <p class="text-xs text-gray-400">Loading doctors...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="h-4"></div>
+            </div>
+
+            <div id="tab-services" class="tab-pane hidden space-y-4">
+                <div class="solid-card rounded-3xl p-5">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-2xl bg-rhuBlue-100 flex items-center justify-center text-rhuBlue-700">
+                            <i class="fas fa-briefcase-medical text-lg"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-base font-extrabold text-slate-900 tracking-tight">
+                                Find a service
+                            </h2>
+                            <p class="text-[11px] font-bold text-rhuBlue-700 uppercase tracking-widest">
+                                RHU San Isidro
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2.5">
+                        <button onclick="showToast('Medical Certificate', 'Opening Medical Certificate service...')" class="w-full flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-rhuBlue-700">
+                                    <i class="fas fa-file-medical text-sm"></i>
+                                </div>
+                                <span class="text-sm font-bold text-slate-800">Medical certificate</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-slate-400 text-xs"></i>
+                        </button>
+
+                        <button onclick="showToast('Suggest a Service', 'Opening suggestion form...')" class="w-full flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-amber-600">
+                                    <i class="fas fa-lightbulb text-sm"></i>
+                                </div>
+                                <span class="text-sm font-bold text-slate-800">Suggest a service</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-slate-400 text-xs"></i>
+                        </button>
+
+                        <button onclick="showToast('Children Vaccination', 'Opening Children Vaccination service...')" class="w-full flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-emerald-600">
+                                    <i class="fas fa-syringe text-sm"></i>
+                                </div>
+                                <span class="text-sm font-bold text-slate-800">Children Vaccination</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-slate-400 text-xs"></i>
+                        </button>
+
+                        <button onclick="showToast('X-Ray', 'Opening X-Ray service...')" class="w-full flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-purple-600">
+                                    <i class="fas fa-x-ray text-sm"></i>
+                                </div>
+                                <span class="text-sm font-bold text-slate-800">X Ray</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-slate-400 text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="h-4"></div>
+            </div>
+
+            <div id="tab-messages" class="tab-pane hidden space-y-4">
+                <div class="solid-card rounded-3xl p-5">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-2xl bg-rhuBlue-100 flex items-center justify-center text-rhuBlue-700">
+                            <i class="fas fa-comment-dots text-lg"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-base font-extrabold text-slate-900 tracking-tight uppercase">
+                                All MESSAGES
+                            </h2>
+                            <p class="text-[11px] font-bold text-rhuBlue-700 uppercase tracking-widest">
+                                RHU San Isidro
+                            </p>
+                        </div>
+                    </div>
+
+                    <div id="messagesList" class="space-y-2.5"></div>
+
+                    <div id="messagesEmpty" class="flex flex-col items-center justify-center py-12 text-center">
+                        <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3 border border-slate-200">
+                            <i class="fas fa-envelope-open text-2xl"></i>
+                        </div>
+                        <p class="text-sm font-extrabold text-slate-700 uppercase tracking-wide">
+                            NO MESSAGES YET
+                        </p>
+                        <p class="text-xs font-medium text-slate-500 mt-1">
+                            New messages from your doctor will appear here.
+                        </p>
+                    </div>
+                </div>
+                <div class="h-4"></div>
+            </div>
+
+            <div id="tab-account" class="tab-pane hidden space-y-4">
+                <div class="solid-card rounded-3xl p-5">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-2xl bg-rhuBlue-100 flex items-center justify-center text-rhuBlue-700">
+                            <i class="fas fa-user text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-base font-extrabold text-slate-900 tracking-tight uppercase">
+                                MY ACCOUNT
+                            </h2>
+                            <p id="accountName" class="text-[11px] font-bold text-rhuBlue-700 uppercase tracking-widest">
+                                Loading...
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2.5">
+                        <button onclick="showProfiles()" class="w-full flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-rhuBlue-700">
+                                    <i class="fas fa-id-card text-sm"></i>
+                                </div>
+                                <span class="text-sm font-bold text-slate-800">PROFILES</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-slate-400 text-xs"></i>
+                        </button>
+
+                        <button onclick="showAppointmentDetails()" class="w-full flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-rhuBlue-700">
+                                    <i class="fas fa-calendar-check text-sm"></i>
+                                </div>
+                                <span class="text-sm font-bold text-slate-800">APPOINTMENT DETAILS</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-slate-400 text-xs"></i>
+                        </button>
+
+                        <button onclick="showMyFiles()" class="w-full flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-rhuBlue-700 relative">
+                                    <i class="fas fa-folder-open text-sm"></i>
+                                    <span id="filesBadge" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border border-white text-white text-[8px] font-bold items-center justify-center hidden">0</span>
+                                </div>
+                                <span class="text-sm font-bold text-slate-800">MY files</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-slate-400 text-xs"></i>
+                        </button>
+                    </div>
+
+                    <button 
+                        onclick="handleLogout()"
+                        class="mt-5 w-full h-11 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs uppercase tracking-wider border border-red-200 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                        <i class="fas fa-right-from-bracket text-sm"></i>
+                        <span>Log out</span>
+                    </button>
+                </div>
+                <div class="h-4"></div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ================= APPOINTMENT FORM VIEW (UPDATED: Date only, 35 limit) ================= -->
+    <main id="appointmentView" class="relative z-10 w-full max-w-[540px] mx-auto hidden animate-fade-in py-4 px-4 min-h-screen">
+        <div class="solid-card rounded-3xl p-5 sm:p-7 text-slate-800 my-auto">
+            
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-200">
+                <div class="flex items-center gap-3">
+                    <img 
+                        src="https://iili.io/nRCHCIs.png" 
+                        alt="RHU Logo" 
+                        class="w-10 h-10 object-contain"
+                        onerror="this.onerror=null; this.src='https://placehold.co/80x80/0284c7/ffffff?text=RHU';"
+                    />
+                    <div>
+                        <h2 class="text-base font-extrabold text-slate-900 uppercase tracking-tight">New Appointment Registration</h2>
+                        <p class="text-[11px] font-semibold text-rhuBlue-700 uppercase">RHU San Isidro Medical Center</p>
+                    </div>
+                </div>
+                <button onclick="closeAppointmentForm()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center border border-slate-300">
+                    <i class="fas fa-arrow-left text-xs"></i>
+                </button>
+            </div>
+
+            <form id="appointmentForm" onsubmit="handleAppointmentSubmit(event)" class="space-y-5">
+
+                <div class="hidden" aria-hidden="true">
+                    <input type="text" id="apptFullName">
+                    <input type="text" id="apptAddress">
+                    <input type="tel" id="apptContact">
+                    <select id="apptGender">
+                        <option value=""></option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <input type="date" id="apptBirthday">
+                    <input type="text" id="apptAge">
+                    <input type="email" id="apptEmail">
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <div class="flex items-center gap-2 text-rhuBlue-700 font-extrabold text-xs uppercase tracking-wider">
+                        <i class="fas fa-user-doctor text-sm"></i>
+                        <span>Appointment Details</span>
+                    </div>
+
+                    <div class="rounded-xl border border-slate-200 bg-white px-3 py-2.5">
+                        <p class="text-[10px] font-bold text-slate-500 uppercase">Selected doctor</p>
+                        <p id="apptDoctorDisplay" class="text-sm font-bold text-slate-800">Choose a doctor to continue</p>
+                    </div>
+
+                    <select id="apptDoctor" onchange="onDoctorSelected()" class="hidden" aria-hidden="true">
+                        <option value="">Loading doctors...</option>
+                    </select>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Specialization</label>
+                        <select id="apptSpecialization" required onchange="onSpecializationSelected()" class="custom-input w-full px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-800 bg-white">
+                            <option value="">Select doctor first</option>
+                        </select>
+                        <p class="text-[10px] text-slate-500 mt-1 italic">Choose from this doctor's available specializations.</p>
+                    </div>
+                </div>
+
+                <!-- ================= APPOINTMENT SCHEDULE (UPDATED: Date only, 35 limit) ================= -->
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <div class="flex items-center gap-2 text-rhuBlue-700 font-extrabold text-xs uppercase tracking-wider">
+                        <i class="fas fa-calendar-day text-sm"></i>
+                        <span>Appointment Schedule</span>
+                    </div>
+
+                    <p id="scheduleHintTop" class="text-[10px] font-semibold text-slate-500 italic">
+                        ⓘ Select doctor & specialization to see real availability.
+                    </p>
+
+                    <!-- CALENDAR -->
+                    <div id="calendarSection" class="hidden">
+                        <div class="bg-white border border-slate-200 rounded-xl p-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <button type="button" onclick="calPrevMonth()" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 border border-slate-200">
+                                    <i class="fas fa-chevron-left text-xs"></i>
+                                </button>
+                                <div class="text-xs font-extrabold text-slate-800 uppercase tracking-wider" id="calMonthLabel">Month</div>
+                                <button type="button" onclick="calNextMonth()" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 border border-slate-200">
+                                    <i class="fas fa-chevron-right text-xs"></i>
+                                </button>
+                            </div>
+
+                            <div class="cal-grid mb-1">
+                                <div class="cal-day-name">Sun</div>
+                                <div class="cal-day-name">Mon</div>
+                                <div class="cal-day-name">Tue</div>
+                                <div class="cal-day-name">Wed</div>
+                                <div class="cal-day-name">Thu</div>
+                                <div class="cal-day-name">Fri</div>
+                                <div class="cal-day-name">Sat</div>
+                            </div>
+                            <div id="calGrid" class="cal-grid"></div>
+
+                            <!-- LEGEND -->
+                            <div class="flex items-center justify-center flex-wrap gap-3 mt-3 pt-3 border-t border-slate-100">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="cal-legend-dot" style="background:#dcfce7;border:1px solid #86efac;"></span>
+                                    <span class="text-[10px] font-bold text-slate-600 uppercase">Available</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="cal-legend-dot" style="background:#fee2e2;border:1px solid #fca5a5;"></span>
+                                    <span class="text-[10px] font-bold text-slate-600 uppercase">Fully Booked</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="cal-legend-dot" style="background:#f1f5f9;border:1px solid #e2e8f0;"></span>
+                                    <span class="text-[10px] font-bold text-slate-600 uppercase">No Schedule</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="cal-legend-dot" style="background:#0284c7;"></span>
+                                    <span class="text-[10px] font-bold text-slate-600 uppercase">Selected</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SELECTED DATE DISPLAY -->
+                        <div id="selectedDateDisplay" class="mt-3 p-2.5 rounded-lg bg-rhuBlue-50 border border-rhuBlue-200 text-center hidden">
+                            <p class="text-[10px] font-bold text-rhuBlue-700 uppercase tracking-wide">Selected Date</p>
+                            <p id="selectedDateText" class="text-xs font-extrabold text-rhuBlue-900 mt-0.5">—</p>
+                        </div>
+                    </div>
+
+                    <!-- Hidden inputs kept for compatibility -->
+                    <input type="hidden" id="apptDate" required>
+
+                    <p id="scheduleHint" class="text-[10px] font-semibold text-slate-500 italic">
+                        ⓘ Available dates are set by the doctor. Each date is limited to 35 patients.
+                    </p>
+                </div>
+
+                <div class="pt-2">
+                    <button 
+                        type="submit" 
+                        id="apptSubmitBtn"
+                        class="w-full h-12 rounded-xl bg-rhuBlue-600 hover:bg-rhuBlue-700 text-white font-bold text-xs uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                        <span>Submit Appointment</span>
+                        <i class="fas fa-paper-plane text-xs"></i>
+                    </button>
+                    
+                    <button 
+                        type="button" 
+                        onclick="closeAppointmentForm()" 
+                        class="w-full mt-2 py-2 text-center text-xs font-bold text-slate-500 hover:text-slate-800"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- ================= APPOINTMENT SUCCESS MODAL ================= -->
+    <div id="appointmentSuccessModal" class="fixed inset-0 z-[9998] flex items-center justify-center bg-slate-900/80 hidden p-4">
+        <div class="solid-card rounded-3xl max-w-sm w-full p-6 text-center space-y-4 animate-fade-in">
+            <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center text-2xl border border-emerald-300">
+                <i class="fas fa-circle-check"></i>
+            </div>
+            
+            <h3 class="text-base font-extrabold text-slate-900 uppercase">Appointment Submitted</h3>
+            
+            <p class="text-xs text-slate-600 leading-relaxed font-medium">
+                Your appointment has been successfully submitted. Your schedule has been occupied and confirmed.
+            </p>
+            <p class="text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                You can view the full details in the <span class="font-bold text-rhuBlue-700">Appointment Details</span> section under your Account.
+            </p>
+
+            <div class="space-y-2">
+                <button onclick="closeApptSuccessAndGoDetails()" class="w-full py-3 rounded-xl bg-rhuBlue-600 hover:bg-rhuBlue-700 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2">
+                    <span>Go to Appointment Details</span>
+                    <i class="fas fa-arrow-right text-[10px]"></i>
+                </button>
+                <button onclick="closeApptSuccessModal()" class="w-full py-2 text-center text-xs font-bold text-slate-500 hover:text-slate-800">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= APPOINTMENT DETAILS MODAL ================= -->
+    <div id="appointmentDetailsModal" class="fixed inset-0 z-[9998] flex items-center justify-center bg-slate-900/80 hidden p-4">
+        <div class="solid-card rounded-3xl max-w-md w-full p-6 space-y-4 animate-fade-in max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between">
+                <h3 class="text-base font-extrabold text-slate-900 uppercase tracking-tight">Appointment Details</h3>
+                <button onclick="closeAppointmentDetailsModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center border border-slate-300">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+            <div id="appointmentDetailsContent" class="space-y-3 text-xs"></div>
+        </div>
+    </div>
+
+    <!-- ================= MY QR CODE MODAL ================= -->
+    <div id="myQRModal" class="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/80 hidden p-4">
+        <div class="solid-card rounded-3xl max-w-sm w-full p-6 space-y-4 animate-fade-in max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between">
+                <h3 class="text-base font-extrabold text-slate-900 uppercase tracking-tight">My QR Code</h3>
+                <button onclick="closeMyQRModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center border border-slate-300">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+            <div id="myQRContent" class="text-center"></div>
+        </div>
+    </div>
+
+    <!-- ================= PENDING MODAL ================= -->
+    <div id="pendingModal" class="fixed inset-0 z-[9998] flex items-center justify-center bg-slate-900/80 hidden p-4">
+        <div class="solid-card rounded-3xl max-w-sm w-full p-6 text-center space-y-4 animate-fade-in">
+            <div class="w-16 h-16 rounded-full bg-sky-100 text-sky-600 mx-auto flex items-center justify-center text-2xl border border-sky-300">
+                <i class="fas fa-clock-rotate-left"></i>
+            </div>
+            
+            <h3 class="text-base font-extrabold text-slate-900 uppercase">Registration Pending</h3>
+            
+            <p class="text-xs text-slate-600 leading-relaxed font-medium">
+                Your registration is currently <span class="font-bold text-sky-700">pending review by administration</span>. Your record is saved in our system database.
+            </p>
+            <p class="text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                Please wait for the administration to review your registration before logging in.
+            </p>
+
+            <button onclick="closePendingModal()" class="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider">
+                Understood
+            </button>
+        </div>
+    </div>
+
+    <!-- ================= PROFILE MODAL ================= -->
+    <div id="profileModal" class="fixed inset-0 z-[9998] flex items-center justify-center bg-slate-900/80 hidden p-4">
+        <div class="solid-card rounded-3xl max-w-md w-full p-6 space-y-4 animate-fade-in max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between">
+                <h3 class="text-base font-extrabold text-slate-900 uppercase tracking-tight">My Profile</h3>
+                <button onclick="closeProfileModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center border border-slate-300">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+            <div id="profileContent" class="space-y-3 text-xs"></div>
+        </div>
+    </div>
+
+    <!-- ================= MY FILES MODAL ================= -->
+    <div id="myFilesModal" class="fixed inset-0 z-[9998] flex items-center justify-center bg-slate-900/80 hidden p-4">
+        <div class="solid-card rounded-3xl max-w-md w-full p-6 space-y-4 animate-fade-in max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between">
+                <h3 class="text-base font-extrabold text-slate-900 uppercase tracking-tight">My Files</h3>
+                <button onclick="closeMyFilesModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center border border-slate-300">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+            <label class="relative block">
+                <i class="fas fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input id="myFilesSearch" type="search" oninput="showMyFiles()" placeholder="Search patient records..." class="custom-input w-full pl-9 pr-3 py-2.5 rounded-xl text-xs font-semibold text-slate-800">
+            </label>
+            <div id="myFilesContent" class="space-y-3 text-xs"></div>
+        </div>
+    </div>
+
+    <!-- ================= RECORD DETAIL MODAL ================= -->
+    <div id="recordDetailModal" class="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/80 hidden p-4">
+        <div class="solid-card rounded-3xl max-w-md w-full p-6 space-y-4 animate-fade-in max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between">
+                <h3 class="text-base font-extrabold text-slate-900 uppercase tracking-tight">Medical Document</h3>
+                <button onclick="closeRecordDetailModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center border border-slate-300">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+            <div id="recordDetailContent" class="space-y-3 text-xs"></div>
+            <div class="pt-2">
+                <button id="downloadRecordBtn" onclick="downloadCurrentRecord()" class="w-full py-3 rounded-xl bg-rhuBlue-600 hover:bg-rhuBlue-700 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2">
+                    <i class="fas fa-download"></i>
+                    <span>DOWNLOAD DOCUMENT</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= FIXED BOTTOM NAV ================= -->
+    <nav id="bottomNav" class="hidden">
+        <div id="bottomNavInner">
+            <ul class="flex items-center justify-between">
+                <li class="flex-1">
+                    <button onclick="switchTab(this, 'home')" class="bottom-nav-item active w-full flex flex-col items-center gap-1 py-1.5 rounded-xl transition-colors cursor-pointer">
+                        <span class="nav-icon w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 transition-colors">
+                            <i class="fas fa-house text-base"></i>
+                        </span>
+                        <span class="nav-label text-[10px] font-bold text-slate-500 uppercase tracking-wide transition-colors">HOME</span>
+                    </button>
+                </li>
+                <li class="flex-1">
+                    <button onclick="showMyQRCode()" class="bottom-nav-item w-full flex flex-col items-center gap-1 py-1.5 rounded-xl transition-colors cursor-pointer">
+                        <span class="nav-icon w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 transition-colors">
+                            <i class="fas fa-qrcode text-base"></i>
+                        </span>
+                        <span class="nav-label text-[10px] font-bold text-slate-500 uppercase tracking-wide transition-colors">MY QR</span>
+                    </button>
+                </li>
+                <li class="flex-1">
+                    <button onclick="switchTab(this, 'doctors')" class="bottom-nav-item w-full flex flex-col items-center gap-1 py-1.5 rounded-xl transition-colors cursor-pointer">
+                        <span class="nav-icon w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 transition-colors">
+                            <i class="fas fa-user-doctor text-base"></i>
+                        </span>
+                        <span class="nav-label text-[10px] font-bold text-slate-500 uppercase tracking-wide transition-colors">DOCTORS</span>
+                    </button>
+                </li>
+                <li class="flex-1">
+                    <button onclick="switchTab(this, 'messages')" class="bottom-nav-item w-full flex flex-col items-center gap-1 py-1.5 rounded-xl transition-colors cursor-pointer">
+                        <span class="nav-icon w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 transition-colors relative">
+                            <i class="fas fa-comment-dots text-base"></i>
+                            <span id="msgBadge" class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white hidden"></span>
+                        </span>
+                        <span class="nav-label text-[10px] font-bold text-slate-500 uppercase tracking-wide transition-colors">MESSAGES</span>
+                    </button>
+                </li>
+                <li class="flex-1">
+                    <button onclick="switchTab(this, 'account')" class="bottom-nav-item w-full flex flex-col items-center gap-1 py-1.5 rounded-xl transition-colors cursor-pointer">
+                        <span class="nav-icon w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 transition-colors">
+                            <i class="fas fa-user text-base"></i>
+                        </span>
+                        <span class="nav-label text-[10px] font-bold text-slate-500 uppercase tracking-wide transition-colors">ACCOUNT</span>
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ================= FIREBASE SDK ================= -->
+    <script>
+        window.__db = null;
+        window.__firestoreFns = null;
+        window.__firebaseReady = false;
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDt01Rk7ophAjlCl68MRhAyvc18QdUFvNc",
+            authDomain: "rhu-san-isidro-nueva-ecija.firebaseapp.com",
+            projectId: "rhu-san-isidro-nueva-ecija",
+            storageBucket: "rhu-san-isidro-nueva-ecija.firebasestorage.app",
+            messagingSenderId: "974247745983",
+            appId: "1:974247745983:web:dace598219bb8d1479e90a",
+            measurementId: "G-F8Y6VMCW79"
+        };
+
+        (async function initFirebase() {
+            try {
+                const { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
+                const firestoreModule = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+
+                const app = initializeApp(firebaseConfig);
+                const db = firestoreModule.getFirestore(app);
+
+                window.__db = db;
+                window.__firestoreFns = {
+                    collection: firestoreModule.collection,
+                    doc: firestoreModule.doc,
+                    setDoc: firestoreModule.setDoc,
+                    getDoc: firestoreModule.getDoc,
+                    getDocs: firestoreModule.getDocs,
+                    onSnapshot: firestoreModule.onSnapshot,
+                    query: firestoreModule.query,
+                    where: firestoreModule.where,
+                    updateDoc: firestoreModule.updateDoc,
+                    addDoc: firestoreModule.addDoc,
+                    deleteDoc: firestoreModule.deleteDoc,
+                    serverTimestamp: firestoreModule.serverTimestamp
+                };
+                window.__firebaseReady = true;
+
+                console.log("✅ Patient Portal - Firebase ready:", firebaseConfig.projectId);
+
+                if (window.initRegistrationListener) window.initRegistrationListener();
+                if (window.initMessagesListener) window.initMessagesListener();
+                if (window.initPostsListener) window.initPostsListener();
+                if (window.initSchedulesListener) window.initSchedulesListener();
+                if (window.initDoctorsListener) window.initDoctorsListener();
+                if (window.initPatientRecordsListener) window.initPatientRecordsListener();
+                if (window.initAppointmentsListener) window.initAppointmentsListener();
+            } catch (err) {
+                console.error("❌ Firebase initialization failed:", err);
+            }
+        })();
+    </script>
+
+    <!-- ================= APP LOGIC ================= -->
+    <script>
+        const ADMIN_ACCOUNTS = [
+            { email: 'rhu@gmail.com', password: 'admin12', name: 'RHU Admin' }
+        ];
+
+        const ID_REQUIRED_AGE = 12;
+
+        const BAD_WORDS = [
+            'fuck','shit','bitch','asshole','bastard','dick','pussy','cunt','whore','slut',
+            'putangina','putang ina','puta','gago','gaga','tanga','bobo','ulol','tarantado',
+            'punyeta','hayop','leche','bwisit','kingina','pakyu','peste','hinayupak',
+            'burat','titi','pekpek','kantot','jakol','bayag','etits',
+            'nigga','nigger','faggot','retard','idiot','stupid','moron'
+        ];
+
+        let localPendingRegistrations = [];
+        let currentUser = null;
+        let currentProfile = null;
+        let cachedImages = {};
+        let currentAppointment = null;
+        let allDoctorSchedules = [];
+        let allDoctors = [];
+        let allPatientRecords = [];
+        let allMessages = [];
+        let allAppointments = [];
+        let currentRecordView = null;
+
+        // ====== CALENDAR STATE ======
+        let calCurrentMonth = new Date();
+        calCurrentMonth.setDate(1);
+        let calSelectedDate = '';
+        let calScheduleMode = false; // whether doctor+spec is chosen
+        let lockedAppointmentDoctor = '';
+
+        const READ_NOTIF_KEY = 'rhu_patient_read_notifs_v1';
+
+        function getReadNotifIds() {
+            try {
+                const raw = localStorage.getItem(READ_NOTIF_KEY);
+                if (!raw) return new Set();
+                const arr = JSON.parse(raw);
+                return new Set(Array.isArray(arr) ? arr : []);
+            } catch { return new Set(); }
+        }
+        function saveReadNotifIds(set) {
+            try { localStorage.setItem(READ_NOTIF_KEY, JSON.stringify(Array.from(set))); } catch {}
+        }
+
+        function normalizeStr(s) {
+            if (!s) return '';
+            return String(s).trim().toLowerCase().replace(/\s+/g, ' ');
+        }
+
+        function getDoctorSpecializations(d) {
+            if (!d) return [];
+            if (Array.isArray(d.specializations) && d.specializations.length > 0) {
+                return d.specializations.filter(Boolean);
+            }
+            if (d.specialization) return [d.specialization];
+            return [];
+        }
+
+        function toLocalDateISO(date = new Date()) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function getBookedTimesByDoctorName(doctorName, date) {
+            const set = new Set();
+            const nd = normalizeStr(doctorName);
+            allAppointments.forEach(a => {
+                if (!a) return;
+                if ((a.status || '').toUpperCase() === 'CANCELLED') return;
+                if (a.appointmentDate !== date) return;
+                if (!a.doctor) return;
+                if (normalizeStr(a.doctor) !== nd) return;
+                if (a.appointmentTime) set.add(a.appointmentTime);
+            });
+            return set;
+        }
+
+        function isPatientBookedThatDay(appointments, date, email, patientNumber) {
+            const normalizedEmail = normalizeStr(email);
+            const normalizedNumber = normalizeStr(patientNumber);
+            return appointments.some(appointment => {
+                if (!appointment || appointment.appointmentDate !== date || (appointment.status || '').toUpperCase() === 'CANCELLED') return false;
+                return (normalizedEmail && (
+                    normalizeStr(appointment.email) === normalizedEmail ||
+                    normalizeStr(appointment.patientEmail) === normalizedEmail
+                )) || (normalizedNumber && normalizeStr(appointment.patientNumber) === normalizedNumber);
+            });
+        }
+
+        function generateRambol() {
+            return String(Math.floor(100000 + Math.random() * 900000));
+        }
+
+        function generateQRDataURL(text, size = 220) {
+            return new Promise((resolve) => {
+                const tempDiv = document.createElement('div');
+                tempDiv.style.position = 'absolute';
+                tempDiv.style.left = '-9999px';
+                document.body.appendChild(tempDiv);
+                try {
+                    new QRCode(tempDiv, {
+                        text: text,
+                        width: size,
+                        height: size,
+                        colorDark: "#0284c7",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.M
+                    });
+                    setTimeout(() => {
+                        const canvas = tempDiv.querySelector('canvas');
+                        const img = tempDiv.querySelector('img');
+                        let dataUrl = '';
+                        if (canvas) dataUrl = canvas.toDataURL('image/png');
+                        else if (img) dataUrl = img.src;
+                        document.body.removeChild(tempDiv);
+                        resolve(dataUrl);
+                    }, 200);
+                } catch (e) {
+                    document.body.removeChild(tempDiv);
+                    resolve('');
+                }
+            });
+        }
+
+        function validateFullName(name) {
+            const trimmed = (name || '').trim();
+            if (!trimmed) return { ok: false, msg: 'Please enter your full name.' };
+            if (trimmed.length < 2) return { ok: false, msg: 'Name is too short.' };
+            const nameRegex = /^[A-Za-zÀ-ÿñÑ.\-' ,]+$/;
+            if (!nameRegex.test(trimmed)) return { ok: false, msg: 'Name can only contain letters, spaces, and . - \' ,' };
+            if (/\d/.test(trimmed)) return { ok: false, msg: 'Numbers are not allowed in name.' };
+            const lower = trimmed.toLowerCase();
+            for (const bad of BAD_WORDS) {
+                if (lower.includes(bad)) return { ok: false, msg: 'Please use a real name. Inappropriate words are not allowed.' };
+            }
+            return { ok: true };
+        }
+
+        function showBottomNav(show) {
+            const nav = document.getElementById('bottomNav');
+            if (show) nav.classList.remove('hidden');
+            else nav.classList.add('hidden');
+        }
+
+        function switchToRegisterView() {
+            document.getElementById('loginView').classList.add('hidden');
+            document.getElementById('dashboardView').classList.add('hidden');
+            document.getElementById('appointmentView').classList.add('hidden');
+            document.getElementById('registerView').classList.remove('hidden');
+            showBottomNav(false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function switchToLoginView() {
+            document.getElementById('registerView').classList.add('hidden');
+            document.getElementById('dashboardView').classList.add('hidden');
+            document.getElementById('appointmentView').classList.add('hidden');
+            document.getElementById('loginView').classList.remove('hidden');
+            showBottomNav(false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function switchToDashboardView() {
+            document.getElementById('loginView').classList.add('hidden');
+            document.getElementById('registerView').classList.add('hidden');
+            document.getElementById('appointmentView').classList.add('hidden');
+            document.getElementById('dashboardView').classList.remove('hidden');
+            showBottomNav(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openAppointmentForm(doctorName = '') {
+            lockedAppointmentDoctor = doctorName;
+            document.getElementById('dashboardView').classList.add('hidden');
+            document.getElementById('appointmentView').classList.remove('hidden');
+            showBottomNav(false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            if (currentProfile) {
+                const p = currentProfile;
+                if (p.fullName) document.getElementById('apptFullName').value = p.fullName;
+                if (p.address) document.getElementById('apptAddress').value = p.address;
+                if (p.contact) document.getElementById('apptContact').value = p.contact;
+                if (p.gender) document.getElementById('apptGender').value = p.gender;
+                if (p.birthday) {
+                    document.getElementById('apptBirthday').value = p.birthday;
+                    calculateApptAge();
+                }
+                if (p.email) document.getElementById('apptEmail').value = p.email;
+            }
+
+            // Reset calendar
+            calCurrentMonth = new Date();
+            calCurrentMonth.setDate(1);
+            calSelectedDate = '';
+            calScheduleMode = false;
+            document.getElementById('apptDate').value = '';
+            document.getElementById('calendarSection').classList.add('hidden');
+            document.getElementById('selectedDateDisplay').classList.add('hidden');
+
+            populateDoctorDropdown();
+            resetSpecializationDropdown();
+            const doctorSelect = document.getElementById('apptDoctor');
+            const doctorDisplay = document.getElementById('apptDoctorDisplay');
+            doctorSelect.disabled = false;
+            doctorDisplay.textContent = lockedAppointmentDoctor || 'Choose a doctor to continue';
+            if (lockedAppointmentDoctor) {
+                doctorSelect.value = lockedAppointmentDoctor;
+                onDoctorSelected();
+                doctorSelect.disabled = true;
+            }
+            updateAvailabilityNotice();
+        }
+
+        function resetSpecializationDropdown() {
+            const specSelect = document.getElementById('apptSpecialization');
+            if (!specSelect) return;
+            specSelect.innerHTML = '<option value="">Select doctor first</option>';
+            specSelect.disabled = true;
+        }
+
+        function resetScheduleSection() {
+            calSelectedDate = '';
+            calScheduleMode = false;
+            document.getElementById('apptDate').value = '';
+            document.getElementById('calendarSection').classList.add('hidden');
+            document.getElementById('selectedDateDisplay').classList.add('hidden');
+            document.getElementById('scheduleHintTop').innerHTML = 'ⓘ Select doctor & specialization to see real availability.';
+        }
+
+        function updateAvailabilityNotice() {
+            const notice = document.getElementById('availabilityNotice');
+            if (!notice) return;
+
+            const availableCount = allDoctors.filter(doctor => getDoctorAvailability(doctor).available).length;
+            if (availableCount === 0) {
+                notice.className = "mb-4 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-semibold flex items-start gap-2";
+                notice.innerHTML = `<i class="fas fa-circle-info text-sm mt-0.5 flex-shrink-0"></i><span>No doctors have an open appointment schedule right now. Please try again later.</span>`;
+            } else {
+                notice.className = "mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-semibold flex items-start gap-2";
+                notice.innerHTML = `<i class="fas fa-circle-check text-sm mt-0.5 flex-shrink-0"></i><span>${availableCount} doctor${availableCount === 1 ? '' : 's'} ${availableCount === 1 ? 'has' : 'have'} future appointment availability.</span>`;
+            }
+        }
+
+        function isDoctorDateUnavailable(doctorName, specialization, date) {
+            const normDoctor = normalizeStr(doctorName);
+            const normSpec = normalizeStr(specialization);
+            return allDoctorSchedules.some(schedule =>
+                normalizeStr(schedule.doctorName) === normDoctor &&
+                (!normSpec || normalizeStr(schedule.specialization) === normSpec) &&
+                (schedule.unavailableDates || []).some(unavailableDate => unavailableDate.date === date)
+            );
+        }
+
+        function getDoctorAvailability(doctor) {
+            if (!doctor || ['DISABLED', 'DISAPPROVED', 'REJECTED'].includes((doctor.status || '').toUpperCase())) {
+                return { available: false, label: 'Unavailable' };
+            }
+            let hasOpenDate = false;
+            const today = toLocalDateISO();
+            const todayDate = new Date(`${today}T00:00:00`);
+            for (const specialization of getDoctorSpecializations(doctor)) {
+                for (let offset = 0; offset < 366; offset++) {
+                    const date = new Date(todayDate);
+                    date.setDate(date.getDate() + offset);
+                    const dateISO = toLocalDateISO(date);
+                    if (isDoctorDateUnavailable(doctor.fullName, specialization, dateISO)) continue;
+                    const booked = allAppointments.filter(appointment =>
+                        normalizeStr(appointment.doctor) === normalizeStr(doctor.fullName) &&
+                        appointment.appointmentDate === dateISO &&
+                        (appointment.status || '').toUpperCase() !== 'CANCELLED'
+                    ).length;
+                    if (booked < 35) {
+                        hasOpenDate = true;
+                        break;
+                    }
+                }
+                if (hasOpenDate) break;
+            }
+            const available = hasOpenDate;
+            return {
+                available,
+                label: hasOpenDate ? 'Available' : 'No open dates'
+            };
+        }
+
+        function updateDoctorAvailabilityUI() {
+            const badge = document.getElementById('homeAvailabilityBadge');
+            if (!badge) return;
+            const availableCount = allDoctors.filter(doctor => getDoctorAvailability(doctor).available).length;
+            const hasAvailability = availableCount > 0;
+            badge.className = `inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-wider ${hasAvailability ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-red-700 bg-red-50 border-red-200'} border px-2 py-0.5 rounded-full`;
+            badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${hasAvailability ? 'bg-emerald-500' : 'bg-red-500'}"></span>${availableCount} with open schedules`;
+        }
+
+        function populateDoctorDropdown() {
+            const doctorSelect = document.getElementById('apptDoctor');
+            if (!doctorSelect) return;
+
+            const currentVal = lockedAppointmentDoctor || doctorSelect.value;
+            doctorSelect.innerHTML = '<option value="">Select doctor</option>';
+
+            if (allDoctors.length === 0) {
+                const opt = document.createElement('option');
+                opt.value = '';
+                opt.textContent = 'No doctors available';
+                opt.disabled = true;
+                doctorSelect.appendChild(opt);
+                return;
+            }
+
+            const sorted = [...allDoctors].sort((a,b) => (a.fullName || '').localeCompare(b.fullName || ''));
+
+            sorted.forEach(d => {
+                const specs = getDoctorSpecializations(d);
+                const specText = specs.length > 0 ? specs.join(', ') : '';
+                const availability = getDoctorAvailability(d);
+                const labelParts = [d.fullName, availability.label.toUpperCase()];
+                if (specText) labelParts.push(specText);
+                const opt = document.createElement('option');
+                opt.value = d.fullName;
+                opt.textContent = labelParts.join(' • ');
+                opt.disabled = !availability.available;
+                if (!availability.available) opt.style.color = '#dc2626';
+                if (d.fullName === currentVal && availability.available) opt.selected = true;
+                doctorSelect.appendChild(opt);
+            });
+            const currentDoctorAvailable = currentVal && getDoctorAvailability(allDoctors.find(d => d.fullName === currentVal)).available;
+            if (currentVal && !currentDoctorAvailable && !lockedAppointmentDoctor) {
+                doctorSelect.value = '';
+                resetSpecializationDropdown();
+                resetScheduleSection();
+                showToast('Doctor Unavailable', 'That doctor has no open schedule. Please choose another doctor.');
+            }
+            if (lockedAppointmentDoctor) {
+                doctorSelect.value = lockedAppointmentDoctor;
+                doctorSelect.disabled = true;
+                document.getElementById('apptDoctorDisplay').textContent = lockedAppointmentDoctor;
+            }
+        }
+
+        function onDoctorSelected() {
+            const doctorName = document.getElementById('apptDoctor').value;
+            document.getElementById('apptDoctorDisplay').textContent = doctorName || 'Choose a doctor to continue';
+            const specSelect = document.getElementById('apptSpecialization');
+
+            resetScheduleSection();
+
+            if (!doctorName) {
+                resetSpecializationDropdown();
+                return;
+            }
+
+            const doctor = allDoctors.find(d => d.fullName === doctorName);
+            if (!doctor || !getDoctorAvailability(doctor).available) {
+                document.getElementById('apptDoctor').value = '';
+                resetSpecializationDropdown();
+                if (doctor) showToast('Doctor Unavailable', 'Please select a doctor with an open schedule.');
+                return;
+            }
+
+            const specs = getDoctorSpecializations(doctor);
+
+            if (specs.length === 0) {
+                specSelect.innerHTML = '<option value="">No specialization set for this doctor</option>';
+                specSelect.disabled = true;
+                return;
+            }
+
+            specSelect.innerHTML = '<option value="">Select specialization</option>';
+            specs.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s;
+                opt.textContent = s.toUpperCase();
+                specSelect.appendChild(opt);
+            });
+            specSelect.disabled = false;
+
+            if (specs.length === 1) {
+                specSelect.value = specs[0];
+                onSpecializationSelected();
+            }
+        }
+
+        function onSpecializationSelected() {
+            const doctorName = document.getElementById('apptDoctor').value;
+            const specialization = document.getElementById('apptSpecialization').value;
+
+            resetScheduleSection();
+
+            if (!doctorName || !specialization) return;
+
+            const normDoctor = normalizeStr(doctorName);
+            const normSpec = normalizeStr(specialization);
+
+            const today = toLocalDateISO();
+            const todayDate = new Date(`${today}T00:00:00`);
+            let firstValid = '';
+            for (let offset = 0; offset < 366; offset++) {
+                const date = new Date(todayDate);
+                date.setDate(date.getDate() + offset);
+                const dateISO = toLocalDateISO(date);
+                const bookedCount = allAppointments.filter(appointment =>
+                    normalizeStr(appointment.doctor) === normDoctor &&
+                    appointment.appointmentDate === dateISO &&
+                    (appointment.status || '').toUpperCase() !== 'CANCELLED'
+                ).length;
+                if (!isDoctorDateUnavailable(doctorName, specialization, dateISO) && bookedCount < 35) {
+                    firstValid = dateISO;
+                    break;
+                }
+            }
+
+            if (!firstValid) {
+                calScheduleMode = false;
+                document.getElementById('calendarSection').classList.add('hidden');
+                document.getElementById('scheduleHintTop').innerHTML = 'ⓘ No open dates are available in the next year.';
+                showToast("No Availability", "This doctor has no open dates in the next year.");
+                return;
+            }
+
+            calScheduleMode = true;
+            document.getElementById('calendarSection').classList.remove('hidden');
+            document.getElementById('scheduleHintTop').innerHTML = 'ⓘ Future dates are available unless marked unavailable or fully booked.';
+
+            calSelectedDate = firstValid;
+            document.getElementById('apptDate').value = firstValid;
+
+            // Set month to first valid date
+            const firstDate = new Date(firstValid + 'T00:00:00');
+            calCurrentMonth = new Date(firstDate.getFullYear(), firstDate.getMonth(), 1);
+
+            renderCalendar();
+        }
+
+        // ============ CALENDAR RENDERING (UPDATED: Date only, 35 limit) ============
+        function renderCalendar() {
+            const grid = document.getElementById('calGrid');
+            const label = document.getElementById('calMonthLabel');
+            if (!grid || !label) return;
+
+            const y = calCurrentMonth.getFullYear();
+            const m = calCurrentMonth.getMonth();
+            const monthName = calCurrentMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+            label.textContent = monthName;
+
+            const firstDay = new Date(y, m, 1).getDay();
+            const daysInMonth = new Date(y, m + 1, 0).getDate();
+
+            const todayISO = toLocalDateISO();
+
+            let html = '';
+
+            // Empty cells before first day
+            for (let i = 0; i < firstDay; i++) {
+                html += `<div class="cal-cell empty"></div>`;
+            }
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateISO = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                let cls = 'cal-cell';
+
+                if (dateISO < todayISO) {
+                    cls += ' past';
+                } else if (!calScheduleMode || isDoctorDateUnavailable(
+                    document.getElementById('apptDoctor').value,
+                    document.getElementById('apptSpecialization').value,
+                    dateISO
+                )) {
+                    cls += ' no-schedule';
+                } else {
+                    // Check if date is fully booked (35 patients)
+                    const doctorName = document.getElementById('apptDoctor').value;
+                    const bookedCount = allAppointments.filter(a => normalizeStr(a.doctor) === normalizeStr(doctorName) && a.appointmentDate === dateISO && (a.status || '').toUpperCase() !== 'CANCELLED').length;
+                    if (bookedCount >= 35) {
+                        cls += ' fully-booked';
+                    } else {
+                        cls += ' available';
+                    }
+                }
+
+                if (dateISO === todayISO) cls += ' today';
+                if (dateISO === calSelectedDate) cls += ' selected';
+
+                const isClickable = !cls.includes('past') && !cls.includes('no-schedule') && !cls.includes('fully-booked');
+
+                html += `<div class="${cls}" ${isClickable ? `onclick="selectCalendarDate('${dateISO}')"` : ''}>
+                    <span>${d}</span>
+                </div>`;
+            }
+
+            grid.innerHTML = html;
+        }
+
+        function selectCalendarDate(dateISO) {
+            if (!dateISO) return;
+            if (isDoctorDateUnavailable(
+                document.getElementById('apptDoctor').value,
+                document.getElementById('apptSpecialization').value,
+                dateISO
+            )) {
+                showToast("Unavailable", "This date has no available schedule.");
+                return;
+            }
+            const doctorName = document.getElementById('apptDoctor').value;
+            const bookedCount = allAppointments.filter(a => normalizeStr(a.doctor) === normalizeStr(doctorName) && a.appointmentDate === dateISO && (a.status || '').toUpperCase() !== 'CANCELLED').length;
+            if (bookedCount >= 35) {
+                showToast("Fully Booked", "This date is fully booked. Please choose another date.");
+                return;
+            }
+            calSelectedDate = dateISO;
+            document.getElementById('apptDate').value = dateISO;
+            renderCalendar();
+            
+            const banner = document.getElementById('selectedDateDisplay');
+            const bannerText = document.getElementById('selectedDateText');
+            if (banner && bannerText) {
+                banner.classList.remove('hidden');
+                const dateObj = new Date(dateISO + 'T00:00:00');
+                bannerText.textContent = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+            }
+        }
+
+        function calPrevMonth() {
+            calCurrentMonth = new Date(calCurrentMonth.getFullYear(), calCurrentMonth.getMonth() - 1, 1);
+            renderCalendar();
+        }
+        function calNextMonth() {
+            calCurrentMonth = new Date(calCurrentMonth.getFullYear(), calCurrentMonth.getMonth() + 1, 1);
+            renderCalendar();
+        }
+
+        function closeAppointmentForm() {
+            document.getElementById('appointmentView').classList.add('hidden');
+            document.getElementById('dashboardView').classList.remove('hidden');
+            lockedAppointmentDoctor = '';
+            document.getElementById('apptDoctorDisplay').textContent = 'Choose a doctor to continue';
+            showBottomNav(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function switchTab(button, tabName) {
+            document.querySelectorAll('.bottom-nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            button.classList.add('active');
+
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.add('hidden');
+            });
+
+            const target = document.getElementById('tab-' + tabName);
+            if (target) {
+                target.classList.remove('hidden');
+                target.classList.add('animate-fade-in');
+            }
+
+            if (tabName === 'doctors') renderDoctorsList();
+            if (tabName === 'account') updateFilesBadge();
+            if (tabName === 'messages') renderMessagesList();
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
+
+        function calculateAge() {
+            const bdayVal = document.getElementById('regBirthday').value;
+            const ageField = document.getElementById('regAge');
+            const warning = document.getElementById('ageWarning');
+            const bdayInput = document.getElementById('regBirthday');
+            if (!bdayVal) {
+                ageField.value = '';
+                ageField.classList.remove('text-red-600');
+                bdayInput.classList.remove('input-error');
+                warning.classList.remove('show');
+                updateIdRequirement(null);
+                return;
+            }
+            const bday = new Date(`${bdayVal}T00:00:00`);
+            const today = new Date();
+            let age = today.getFullYear() - bday.getFullYear();
+            const monthDiff = today.getMonth() - bday.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < bday.getDate())) age--;
+
+            if (Number.isNaN(bday.getTime()) || bdayVal > toLocalDateISO() || age < 0) {
+                ageField.value = 'Invalid date';
+                ageField.classList.add('text-red-600');
+                bdayInput.classList.add('input-error');
+                warning.querySelector('span').textContent = 'Please enter a valid birthday that is not in the future.';
+                warning.classList.add('show');
+                updateIdRequirement(null);
+                return;
+            }
+
+            ageField.value = `${age} years old`;
+            ageField.classList.remove('text-red-600');
+            bdayInput.classList.remove('input-error');
+            warning.classList.remove('show');
+            updateIdRequirement(age);
+        }
+
+        function updateIdRequirement(age) {
+            const requiresId = age === null || age >= ID_REQUIRED_AGE;
+            const fields = document.getElementById('idVerificationFields');
+            const idType = document.getElementById('regValidIdType');
+            const selfie = document.getElementById('picUserWithId');
+            const idPhoto = document.getElementById('picValidId');
+            const notice = document.getElementById('ageRequirementNotice');
+            if (!fields || !idType || !selfie || !idPhoto || !notice) return;
+            fields.classList.toggle('hidden', !requiresId);
+            idType.required = requiresId;
+            selfie.required = requiresId;
+            idPhoto.required = requiresId;
+            notice.querySelector('span').textContent = requiresId
+                ? 'Patients aged 12 and older must provide valid ID photos.'
+                : 'Patients aged 0–11 may register without ID photos.';
+        }
+
+        function calculateApptAge() {
+            const bdayVal = document.getElementById('apptBirthday').value;
+            const ageInput = document.getElementById('apptAge');
+            const bdayInput = document.getElementById('apptBirthday');
+            if (!bdayVal) {
+                ageInput.value = '';
+                ageInput.classList.remove('text-red-600');
+                bdayInput.classList.remove('input-error');
+                return;
+            }
+            const bday = new Date(`${bdayVal}T00:00:00`);
+            const today = new Date();
+            let age = today.getFullYear() - bday.getFullYear();
+            const monthDiff = today.getMonth() - bday.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < bday.getDate())) age--;
+            const invalid = Number.isNaN(bday.getTime()) || bdayVal > toLocalDateISO() || age < 0;
+            ageInput.value = invalid ? 'Invalid date' : `${age} years old`;
+            ageInput.classList.toggle('text-red-600', invalid);
+            bdayInput.classList.toggle('input-error', invalid);
+        }
+
+        function getAgeFromBirthday(bdayVal) {
+            if (!bdayVal) return -1;
+            const bday = new Date(`${bdayVal}T00:00:00`);
+            if (Number.isNaN(bday.getTime()) || bdayVal > toLocalDateISO()) return -1;
+            const today = new Date();
+            let age = today.getFullYear() - bday.getFullYear();
+            const monthDiff = today.getMonth() - bday.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < bday.getDate())) age--;
+            return age;
+        }
+
+        function autoCropAndCompress(file, maxSize = 800, quality = 0.7) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        let { width, height } = img;
+                        const size = Math.min(width, height);
+                        const offsetX = (width - size) / 2;
+                        const offsetY = (height - size) / 2;
+                        const targetSize = Math.min(size, maxSize);
+                        const canvas = document.createElement('canvas');
+                        canvas.width = targetSize;
+                        canvas.height = targetSize;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, offsetX, offsetY, size, size, 0, 0, targetSize, targetSize);
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    };
+                    img.onerror = () => reject(new Error('Invalid image'));
+                    img.src = e.target.result;
+                };
+                reader.onerror = () => reject(new Error('Read error'));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function previewImage(input, previewContainerId) {
+            const file = input.files[0];
+            if (!file) return;
+            const container = document.getElementById(previewContainerId);
+            container.innerHTML = `<div class="flex items-center justify-center h-full"><i class="fas fa-spinner animate-spin text-rhuBlue-600"></i><span class="text-[10px] text-slate-500 ml-2">Processing...</span></div>`;
+            try {
+                const base64 = await autoCropAndCompress(file, 800, 0.7);
+                cachedImages[previewContainerId] = base64;
+                container.innerHTML = `<img src="${base64}" class="w-full h-full object-cover rounded-lg" alt="Preview" />`;
+            } catch (err) {
+                console.error(err);
+                showToast('Image Error', 'Could not process image. Please try again.');
+                input.value = '';
+                container.innerHTML = `<i class="fas fa-camera text-xl mb-1 text-rhuBlue-600"></i><span class="text-[11px] font-bold text-slate-600">Tap to capture / upload</span>`;
+            }
+        }
+
+        function showToast(title, message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-title').innerText = title;
+            document.getElementById('toast-msg').innerText = message;
+            toast.classList.remove('hidden');
+            setTimeout(hideToast, 3500);
+        }
+
+        function hideToast() {
+            document.getElementById('toast').classList.add('hidden');
+        }
+
+        function openPendingModal() {
+            document.getElementById('pendingModal').classList.remove('hidden');
+        }
+
+        function closePendingModal() {
+            document.getElementById('pendingModal').classList.add('hidden');
+        }
+
+        function showProfiles() {
+            if (!currentProfile) { showToast('No Profile', 'No registration data found.'); return; }
+            const p = currentProfile;
+            const profileStatus = (p.status || 'PENDING').toUpperCase();
+            const statusClass = profileStatus === 'APPROVED'
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                : profileStatus === 'PENDING'
+                    ? 'bg-sky-50 text-sky-700 border-sky-200'
+                    : 'bg-red-50 text-red-700 border-red-200';
+            const statusLabel = ['DISABLED', 'DISAPPROVED', 'REJECTED'].includes(profileStatus) ? 'REJECTED' : profileStatus;
+            const content = document.getElementById('profileContent');
+            content.innerHTML = `
+                <div class="flex flex-col items-center text-center pb-3 border-b border-slate-200">
+                    <div class="w-16 h-16 rounded-full bg-rhuBlue-100 flex items-center justify-center text-rhuBlue-700 mb-2">
+                        <i class="fas fa-user text-2xl"></i>
+                    </div>
+                    <p class="text-sm font-extrabold text-slate-900">${escapeHtml(p.fullName || 'N/A')}</p>
+                    <p class="text-[11px] font-bold text-rhuBlue-700 uppercase tracking-widest mt-0.5">${escapeHtml(p.patientNumber || 'N/A')}</p>
+                    <span class="inline-block mt-2 text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full border ${statusClass}">${escapeHtml(statusLabel)}</span>
+                </div>
+                <div class="space-y-2 pt-1">
+                    ${profileRow('Email', p.email)}
+                    ${profileRow('Contact', p.contact)}
+                    ${profileRow('Address', p.address)}
+                    ${profileRow('Gender', p.gender)}
+                    ${profileRow('Birthday', p.birthday)}
+                    ${profileRow('Age', p.age)}
+                    ${profileRow('Valid ID', p.idType)}
+                </div>
+                ${p.selfieWithId ? `<div class="pt-2"><p class="text-[10px] font-bold text-slate-600 uppercase mb-1">Selfie with ID</p><img src="${p.selfieWithId}" class="w-full h-32 object-cover rounded-xl border border-slate-200" /></div>` : ''}
+                ${p.validIdPhoto ? `<div class="pt-2"><p class="text-[10px] font-bold text-slate-600 uppercase mb-1">Valid ID Photo</p><img src="${p.validIdPhoto}" class="w-full h-32 object-cover rounded-xl border border-slate-200" /></div>` : ''}
+            `;
+            document.getElementById('profileModal').classList.remove('hidden');
+        }
+
+        function profileRow(label, value) {
+            return `<div class="flex items-start justify-between gap-3 py-1.5 border-b border-slate-100">
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wide pt-0.5">${label}</span>
+                <span class="text-xs font-semibold text-slate-800 text-right break-words max-w-[60%]">${escapeHtml(value || 'N/A')}</span>
+            </div>`;
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').classList.add('hidden');
+        }
+
+        function showAppointmentDetails() {
+            const content = document.getElementById('appointmentDetailsContent');
+            if (!currentAppointment) {
+                content.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-8 text-center">
+                        <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3 border border-slate-200">
+                            <i class="fas fa-calendar-xmark text-2xl"></i>
+                        </div>
+                        <p class="text-sm font-extrabold text-slate-700 uppercase tracking-wide">NO APPOINTMENT YET</p>
+                        <p class="text-xs font-medium text-slate-500 mt-1">Book an appointment first to see your details here.</p>
+                    </div>
+                `;
+            } else {
+                const a = currentAppointment;
+                const appointmentStatus = getPatientAppointmentDisplayStatus(a);
+                const appointmentStatusClass = appointmentStatus === 'QUEUED'
+                    ? 'bg-sky-50 text-sky-700 border-sky-200'
+                    : appointmentStatus === 'CANCELLED'
+                        ? 'bg-red-50 text-red-700 border-red-200'
+                        : appointmentStatus === 'FINISHED'
+                            ? 'bg-slate-100 text-slate-700 border-slate-300'
+                            : appointmentStatus === 'IN PROGRESS'
+                                ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                : 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                content.innerHTML = `
+                    <div class="flex flex-col items-center text-center pb-3 border-b border-slate-200">
+                        <div class="w-16 h-16 rounded-full bg-rhuBlue-100 flex items-center justify-center text-rhuBlue-700 mb-2">
+                            <i class="fas fa-calendar-check text-2xl"></i>
+                        </div>
+                        <p class="text-sm font-extrabold text-slate-900">${escapeHtml(a.fullName || 'N/A')}</p>
+                        <p class="text-[11px] font-bold text-rhuBlue-700 uppercase tracking-widest mt-0.5">${escapeHtml(a.appointmentId || 'N/A')}</p>
+                        <span class="inline-block mt-2 text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full border ${appointmentStatusClass}">${escapeHtml(appointmentStatus)}</span>
+                    </div>
+                    <div class="space-y-2 pt-1">
+                        ${profileRow('Full Name', a.fullName)}
+                        ${profileRow('Address', a.address)}
+                        ${profileRow('Contact', a.contact)}
+                        ${profileRow('Gender', a.gender)}
+                        ${profileRow('Birthdate', a.birthday)}
+                        ${profileRow('Age', a.age)}
+                        ${profileRow('Email', a.email)}
+                        ${profileRow('Department', a.department)}
+                        ${profileRow('Specialization', a.specialization)}
+                        ${profileRow('Doctor', a.doctor)}
+                        ${profileRow('Appointment Date', a.appointmentDate)}
+                        ${profileRow('Schedule Time', a.appointmentTime)}
+                    </div>
+                    <div class="pt-3 p-3 bg-sky-50 border border-sky-200 rounded-xl text-center">
+                        <i class="fas fa-qrcode text-sky-600 text-xl mb-1"></i>
+                        <p class="text-[11px] text-sky-800 font-bold">Your QR code will be sent by the RHU Admin.</p>
+                        <p class="text-[10px] text-sky-700 mt-1">Check your <strong>Messages</strong> section or tap <strong>MY QR</strong> below to view it once received.</p>
+                    </div>
+                `;
+            }
+            document.getElementById('appointmentDetailsModal').classList.remove('hidden');
+        }
+
+        function getPatientAppointmentDisplayStatus(appointment) {
+            const status = (appointment?.status || 'CONFIRMED').toUpperCase();
+            if (status === 'CANCELLED') return 'CANCELLED';
+            if (status === 'FINISHED' || status === 'COMPLETED') return 'FINISHED';
+            if (status === 'IN_PROGRESS' || status === 'IN PROGRESS') return 'IN PROGRESS';
+            return 'QUEUED';
+        }
+
+        function closeAppointmentDetailsModal() {
+            document.getElementById('appointmentDetailsModal').classList.add('hidden');
+        }
+
+        async function showMyQRCode() {
+            if (!currentUser && !currentProfile) {
+                showToast('Not Logged In', 'Please log in first.');
+                return;
+            }
+            const content = document.getElementById('myQRContent');
+            content.innerHTML = `<div class="flex items-center justify-center py-8"><i class="fas fa-spinner animate-spin text-rhuBlue-600"></i></div>`;
+            document.getElementById('myQRModal').classList.remove('hidden');
+
+            const userEmail = normalizeStr(currentUser?.email || currentProfile?.email || '');
+            const userPatientNumber = normalizeStr(currentUser?.patientNumber || currentProfile?.patientNumber || '');
+            const userName = normalizeStr(currentUser?.fullName || currentProfile?.fullName || '');
+
+            const adminQRMessages = allMessages
+                .filter(m => {
+                    const toEmail = normalizeStr(m.to);
+                    if (m.type !== 'admin_qr') return false;
+                    if (!m.qrImage) return false;
+                    if (toEmail && toEmail === userEmail) return true;
+                    if (m.qrPatientNumber && normalizeStr(m.qrPatientNumber) === userPatientNumber) return true;
+                    if (m.qrPatientName && normalizeStr(m.qrPatientName) === userName) return true;
+                    return false;
+                })
+                .sort((a,b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+
+            if (adminQRMessages.length === 0) {
+                content.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-8 text-center">
+                        <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3 border border-slate-200">
+                            <i class="fas fa-qrcode text-2xl"></i>
+                        </div>
+                        <p class="text-sm font-extrabold text-slate-700 uppercase tracking-wide">NO QR CODE YET</p>
+                        <p class="text-xs font-medium text-slate-500 mt-1">The RHU Admin will send your QR code to your Messages. It will appear here once received.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const qrMsg = adminQRMessages[0];
+
+            content.innerHTML = `
+                <div class="qr-box mb-3">
+                    <img src="${qrMsg.qrImage}" class="w-52 h-52 mx-auto" alt="My QR Code" />
+                </div>
+                ${qrMsg.qrRambol ? `<div class="qr-rambol mb-4">${escapeHtml(qrMsg.qrRambol)}</div>` : ''}
+                <p class="text-xs text-slate-600 mb-1"><span class="font-bold">Patient Name:</span> ${escapeHtml(qrMsg.qrPatientName || '—')}</p>
+                <p class="text-xs text-slate-600 mb-1"><span class="font-bold">Patient Number:</span> ${escapeHtml(qrMsg.qrPatientNumber || '—')}</p>
+                ${qrMsg.qrPatientTime ? `<p class="text-xs text-slate-600 mb-1"><span class="font-bold">Patient Time:</span> ${escapeHtml(qrMsg.qrPatientTime)}</p>` : ''}
+                <p class="text-[10px] text-slate-500 mt-3 italic">Show this QR code upon arrival at the RHU.</p>
+                <a href="${escapeHtml(qrMsg.qrImage)}" download="RHU-QR-${escapeHtml(qrMsg.qrPatientNumber || 'patient')}.png" class="mt-4 w-full py-3 rounded-xl bg-rhuBlue-600 hover:bg-rhuBlue-700 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2">
+                    <i class="fas fa-download"></i><span>Download QR Code</span>
+                </a>
+            `;
+        }
+
+        function closeMyQRModal() {
+            document.getElementById('myQRModal').classList.add('hidden');
+        }
+
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('regBirthday').max = toLocalDateISO();
+            document.getElementById('apptBirthday').max = toLocalDateISO();
+            updateIdRequirement(null);
+            const infoEmail = document.getElementById('regInfoEmail');
+            const credEmail = document.getElementById('regCredEmail');
+            if (infoEmail && credEmail) {
+                infoEmail.addEventListener('input', () => { credEmail.value = infoEmail.value; });
+            }
+            const fnEl = document.getElementById('regFullName');
+            if (fnEl) {
+                fnEl.addEventListener('input', () => {
+                    const v = validateFullName(fnEl.value);
+                    const err = document.getElementById('fullNameError');
+                    if (!fnEl.value.trim()) { err.classList.remove('show'); fnEl.classList.remove('input-error'); return; }
+                    if (!v.ok) { err.textContent = v.msg; err.classList.add('show'); fnEl.classList.add('input-error'); }
+                    else { err.classList.remove('show'); fnEl.classList.remove('input-error'); }
+                });
+            }
+        });
+
+        async function handleRegistrationSubmit(event) {
+            event.preventDefault();
+            const submitBtn = document.getElementById('regSubmitBtn');
+            const fullName = document.getElementById('regFullName').value.trim();
+            const address = document.getElementById('regAddress').value.trim();
+            const contact = document.getElementById('regContact').value.trim();
+            const gender = document.getElementById('regGender').value;
+            const birthday = document.getElementById('regBirthday').value;
+            const age = document.getElementById('regAge').value;
+            const email = document.getElementById('regCredEmail').value.trim().toLowerCase();
+            const password = document.getElementById('regCredPassword').value;
+            const idType = document.getElementById('regValidIdType').value;
+            const selfieWithId = cachedImages['previewUserWithId'] || '';
+            const validIdPhoto = cachedImages['previewValidId'] || '';
+
+            const nameCheck = validateFullName(fullName);
+            if (!nameCheck.ok) {
+                document.getElementById('fullNameError').textContent = nameCheck.msg;
+                document.getElementById('fullNameError').classList.add('show');
+                document.getElementById('regFullName').classList.add('input-error');
+                document.getElementById('regFullName').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                showToast('Invalid Name', nameCheck.msg);
+                return;
+            }
+            document.getElementById('fullNameError').classList.remove('show');
+            document.getElementById('regFullName').classList.remove('input-error');
+
+            if (!birthday) { showToast('Birthday Required', 'Please enter your birthday.'); return; }
+
+            const ageNumber = getAgeFromBirthday(birthday);
+            if (ageNumber < 0) {
+                document.getElementById('regBirthday').classList.add('input-error');
+                document.getElementById('regAge').classList.add('text-red-600');
+                document.getElementById('ageWarning').classList.add('show');
+                document.getElementById('regBirthday').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                showToast('Invalid Birthday', 'Please enter a valid birthday that is not in the future.');
+                return;
+            }
+
+            const requiresId = ageNumber >= ID_REQUIRED_AGE;
+            if (requiresId && (!selfieWithId || !validIdPhoto || !idType)) {
+                showToast('Missing Images', 'Please upload both required ID pictures.');
+                return;
+            }
+
+            const patientNumber = 'RHU-' + Math.floor(100000 + Math.random() * 900000);
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fas fa-spinner animate-spin"></i> Submitting...`;
+
+            const registrationData = {
+                patientNumber, fullName, address, contact, gender, birthday, age, email, password,
+                idType: requiresId ? idType : '', selfieWithId: requiresId ? selfieWithId : '', validIdPhoto: requiresId ? validIdPhoto : '', status: 'PENDING',
+                ageVerified: true,
+                verifiedAge: ageNumber,
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                const { doc, setDoc } = window.__firestoreFns;
+                await setDoc(doc(window.__db, 'registrations', patientNumber), registrationData);
+                localPendingRegistrations.push(registrationData);
+                showToast('Registration Submitted', 'Your registration is now pending approval.');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<span>Submit registration</span><i class="fas fa-paper-plane text-xs"></i>`;
+                document.getElementById('registrationForm').reset();
+                document.getElementById('ageWarning').classList.remove('show');
+                document.getElementById('regBirthday').classList.remove('input-error');
+                document.getElementById('regAge').classList.remove('text-red-600');
+                updateIdRequirement(null);
+                document.getElementById('fullNameError').classList.remove('show');
+                cachedImages = {};
+                document.getElementById('previewUserWithId').innerHTML = `<i class="fas fa-camera text-xl mb-1 text-rhuBlue-600"></i><span class="text-[11px] font-bold text-slate-600">Tap to capture / upload selfie with ID</span>`;
+                document.getElementById('previewValidId').innerHTML = `<i class="fas fa-id-badge text-xl mb-1 text-rhuBlue-600"></i><span class="text-[11px] font-bold text-slate-600">Tap to capture / upload ID card photo</span>`;
+                switchToLoginView();
+                openPendingModal();
+            } catch (err) {
+                console.error("Registration error:", err);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<span>Submit registration</span><i class="fas fa-paper-plane text-xs"></i>`;
+                showToast('Submission Failed', 'Could not save to database. Please try again.');
+            }
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            const inputVal = document.getElementById('patientNumber').value.trim().toLowerCase();
+            const passwordVal = document.getElementById('password').value;
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fas fa-spinner animate-spin"></i> Checking...`;
+
+            if (!window.__firebaseReady) {
+                let attempts = 0;
+                while (!window.__firebaseReady && attempts < 30) {
+                    await new Promise(r => setTimeout(r, 200));
+                    attempts++;
+                }
+                if (!window.__firebaseReady) {
+                    showToast('Connection Error', 'Could not connect to database. Please refresh.');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = `<span>Login</span><i class="fas fa-arrow-right text-xs"></i>`;
+                    return;
+                }
+            }
+
+            try {
+                const admin = ADMIN_ACCOUNTS.find(a => a.email.toLowerCase() === inputVal && a.password === passwordVal);
+                if (admin) {
+                    currentUser = admin;
+                    currentProfile = { fullName: admin.name, patientNumber: 'ADMIN', email: admin.email, status: 'APPROVED' };
+                    document.getElementById('accountName').innerText = admin.name;
+                    showToast('Welcome, Admin!', 'Logged in successfully.');
+                    switchToDashboardView();
+                    const homeBtn = document.querySelector('.bottom-nav-item');
+                    if (homeBtn) switchTab(homeBtn, 'home');
+                    updateNotifBadge();
+                    return;
+                }
+
+                let found = null;
+                const { doc, getDoc, collection, getDocs, query, where } = window.__firestoreFns;
+
+                if (inputVal.toUpperCase().startsWith('RHU-')) {
+                    const snap = await getDoc(doc(window.__db, 'registrations', inputVal.toUpperCase()));
+                    if (snap.exists()) found = snap.data();
+                }
+
+                if (!found) {
+                    const q = query(collection(window.__db, 'registrations'), where('email', '==', inputVal));
+                    const qSnap = await getDocs(q);
+                    qSnap.forEach(d => { if (!found) found = d.data(); });
+                }
+
+                if (!found) {
+                    found = localPendingRegistrations.find(r => r.patientNumber.toLowerCase() === inputVal || r.email.toLowerCase() === inputVal);
+                }
+
+                if (found) {
+                    currentUser = found;
+                    currentProfile = found;
+                    document.getElementById('accountName').innerText = found.fullName || 'Patient';
+                    if ((found.status || '').toUpperCase() === 'PENDING') {
+                        showToast('Registration Pending', 'Your registration is still pending approval by administration.');
+                        openPendingModal();
+                    } else if (['DISABLED', 'DISAPPROVED', 'REJECTED'].includes((found.status || '').toUpperCase())) {
+                        showToast('Registration Rejected', 'This account has been rejected or disabled. Please contact the RHU administration.');
+                    } else if ((found.status || '').toUpperCase() === 'APPROVED') {
+                        if (found.password === passwordVal) {
+                            showToast('Welcome!', `Logged in as ${found.fullName}`);
+                            switchToDashboardView();
+                            const homeBtn = document.querySelector('.bottom-nav-item');
+                            if (homeBtn) switchTab(homeBtn, 'home');
+                            updateFilesBadge();
+                            updateNotifBadge();
+                        } else {
+                            showToast('Wrong Password', 'Incorrect password. Please try again.');
+                        }
+                    } else {
+                        showToast('Account Unavailable', 'Your account status is: ' + found.status);
+                    }
+                } else {
+                    showToast('Login Failed', 'Account not found. Please check your credentials or register.');
+                }
+            } catch (err) {
+                console.error("Login error:", err);
+                showToast('Login Error', 'Could not connect to database. Check console.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<span>Login</span><i class="fas fa-arrow-right text-xs"></i>`;
+            }
+        }
+
+        async function handleAppointmentSubmit(event) {
+            event.preventDefault();
+            const submitBtn = document.getElementById('apptSubmitBtn');
+            const fullName = document.getElementById('apptFullName').value.trim();
+            const address = document.getElementById('apptAddress').value.trim();
+            const contact = document.getElementById('apptContact').value.trim();
+            const gender = document.getElementById('apptGender').value;
+            const birthday = document.getElementById('apptBirthday').value;
+            const age = document.getElementById('apptAge').value;
+            const email = document.getElementById('apptEmail').value.trim().toLowerCase();
+            const doctor = document.getElementById('apptDoctor').value;
+            const specialization = document.getElementById('apptSpecialization').value;
+            const appointmentDate = document.getElementById('apptDate').value;
+            const department = 'RHU SAN ISIDRO N.E';
+            const patientEmail = normalizeStr(currentProfile?.email || email);
+            const patientNumber = currentProfile?.patientNumber || '';
+
+            if (!doctor) { showToast('Doctor Required', 'Please select a doctor first.'); return; }
+            if (!specialization) { showToast('Specialization Required', 'Please select a specialization.'); return; }
+            if (!appointmentDate) { showToast('Date Required', 'Please select an available date on the calendar.'); return; }
+            if (isPatientBookedThatDay(allAppointments, appointmentDate, patientEmail, patientNumber)) {
+                showToast('Daily Booking Limit', 'You already have an active appointment for that day. Choose another date.');
+                return;
+            }
+
+            const selectedDoctor = allDoctors.find(d => normalizeStr(d.fullName) === normalizeStr(doctor));
+            if (!getDoctorAvailability(selectedDoctor).available) {
+                showToast('Doctor Unavailable', 'That doctor does not have an open schedule. Please choose another.');
+                populateDoctorDropdown();
+                return;
+            }
+
+            const normDoctor = normalizeStr(doctor);
+            if (appointmentDate < toLocalDateISO() || isDoctorDateUnavailable(doctor, specialization, appointmentDate)) {
+                showToast('Invalid Schedule', 'The selected date is not available. Please choose another.');
+                return;
+            }
+
+            const bookedCount = allAppointments.filter(a => normalizeStr(a.doctor) === normDoctor && a.appointmentDate === appointmentDate && (a.status || '').toUpperCase() !== 'CANCELLED').length;
+            if (bookedCount >= 35) {
+                showToast('Fully Booked', `Dr. ${doctor} is fully booked on ${appointmentDate}. Please choose another date.`);
+                renderCalendar();
+                return;
+            }
+
+            const appointmentId = 'APPT-' + Math.floor(100000 + Math.random() * 900000);
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fas fa-spinner animate-spin"></i> Submitting...`;
+
+            const doctorDoc = allDoctors.find(d => normalizeStr(d.fullName) === normDoctor);
+
+            const appointmentData = {
+                appointmentId, fullName, address, contact, gender, birthday, age, email,
+                department, specialization, doctor, appointmentDate, appointmentTime: '',
+                status: 'CONFIRMED', createdAt: new Date().toISOString(),
+                patientEmail: currentProfile ? currentProfile.email : email,
+                doctorId: doctorDoc ? (doctorDoc.doctorId || '') : '',
+                doctorEmail: doctorDoc ? (doctorDoc.loginEmail || '') : '',
+                patientNumber: currentProfile ? (currentProfile.patientNumber || '') : ''
+            };
+
+            try {
+                const { doc, setDoc, collection, addDoc, getDocs, query, where } = window.__firestoreFns;
+                const appointmentQueries = [];
+                if (patientEmail) appointmentQueries.push(query(collection(window.__db, 'appointments'), where('email', '==', patientEmail)));
+                if (patientNumber) appointmentQueries.push(query(collection(window.__db, 'appointments'), where('patientNumber', '==', patientNumber)));
+                const serverAppointments = [];
+                for (const appointmentQuery of appointmentQueries) {
+                    const snapshot = await getDocs(appointmentQuery);
+                    snapshot.forEach(docSnap => serverAppointments.push(docSnap.data()));
+                }
+                if (isPatientBookedThatDay(serverAppointments, appointmentDate, patientEmail, patientNumber)) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = `<span>Submit Appointment</span><i class="fas fa-paper-plane text-xs"></i>`;
+                    showToast('Daily Booking Limit', 'You already have an active appointment for that day. Choose another date.');
+                    return;
+                }
+                await setDoc(doc(window.__db, 'appointments', appointmentId), appointmentData);
+
+                try {
+                    const doctorEmailTo = doctorDoc ? (doctorDoc.loginEmail || '') : '';
+                    const autoMsg = {
+                        from: 'System',
+                        to: doctorEmailTo,
+                        text: `🔔 NEW APPOINTMENT BOOKED\n\nPatient: ${fullName}\nEmail: ${email}\nContact: ${contact}\nSpecialization: ${specialization}\nDate: ${appointmentDate}\n\nPlease check your Appointments list.`,
+                        date: new Date().toLocaleString(),
+                        createdAt: new Date().toISOString(),
+                        appointmentId: appointmentId,
+                        type: 'auto_booking'
+                    };
+                    await addDoc(collection(window.__db, 'messages'), autoMsg);
+                } catch (msgErr) {
+                    console.warn("Auto-message failed:", msgErr);
+                }
+
+                currentAppointment = appointmentData;
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<span>Submit Appointment</span><i class="fas fa-paper-plane text-xs"></i>`;
+                document.getElementById('appointmentForm').reset();
+                document.getElementById('apptAge').value = '';
+                resetSpecializationDropdown();
+                resetScheduleSection();
+                document.getElementById('appointmentSuccessModal').classList.remove('hidden');
+            } catch (err) {
+                console.error("Appointment error:", err);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<span>Submit Appointment</span><i class="fas fa-paper-plane text-xs"></i>`;
+                showToast('Submission Failed', 'Could not save appointment. Please try again.');
+            }
+        }
+
+        function closeApptSuccessModal() {
+            document.getElementById('appointmentSuccessModal').classList.add('hidden');
+            closeAppointmentForm();
+        }
+
+        function closeApptSuccessAndGoDetails() {
+            document.getElementById('appointmentSuccessModal').classList.add('hidden');
+            document.getElementById('appointmentView').classList.add('hidden');
+            document.getElementById('dashboardView').classList.remove('hidden');
+            lockedAppointmentDoctor = '';
+            document.getElementById('apptDoctorDisplay').textContent = 'Choose a doctor to continue';
+            showBottomNav(true);
+            const accountBtn = document.querySelectorAll('.bottom-nav-item')[4];
+            if (accountBtn) switchTab(accountBtn, 'account');
+            setTimeout(() => showAppointmentDetails(), 300);
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            currentProfile = null;
+            currentAppointment = null;
+            currentRecordView = null;
+            document.getElementById('patientNumber').value = '';
+            document.getElementById('password').value = '';
+            closeNotifPanel();
+            showToast('Logged out', 'You have been logged out successfully.');
+            switchToLoginView();
+        }
+
+        function getMyRecords() {
+            if (!currentUser) return [];
+            const myEmail = normalizeStr(currentUser.email);
+            const myPatientNumber = normalizeStr(currentUser.patientNumber);
+            return allPatientRecords.filter(r => 
+                normalizeStr(r.patientEmail) === myEmail ||
+                normalizeStr(r.patientNumber) === myPatientNumber
+            );
+        }
+
+        function updateFilesBadge() {
+            const badge = document.getElementById('filesBadge');
+            if (!badge) return;
+            const count = getMyRecords().length;
+            if (count > 0) {
+                badge.textContent = count;
+                badge.classList.remove('hidden');
+                badge.classList.add('flex');
+            } else {
+                badge.classList.add('hidden');
+                badge.classList.remove('flex');
+            }
+        }
+
+        function showMyFiles() {
+            const content = document.getElementById('myFilesContent');
+            const search = normalizeStr(document.getElementById('myFilesSearch')?.value || '');
+            const records = getMyRecords().filter(record =>
+                !search || [record.title, record.doctorName, record.doctorSpec, record.date, record.diagnosis]
+                    .some(value => normalizeStr(value).includes(search))
+            );
+
+            if (records.length === 0) {
+                content.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-8 text-center">
+                        <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3 border border-slate-200">
+                            <i class="fas fa-folder-open text-2xl"></i>
+                        </div>
+                        <p class="text-sm font-extrabold text-slate-700 uppercase tracking-wide">${search ? 'NO MATCHING RECORDS' : 'NO FILES YET'}</p>
+                        <p class="text-xs font-medium text-slate-500 mt-1">${search ? 'Try another search.' : 'Documents from your doctor will appear here.'}</p>
+                    </div>
+                `;
+            } else {
+                records.sort((a,b) => (b.createdAt||'').localeCompare(a.createdAt||''));
+                content.innerHTML = records.map(r => `
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                        <div class="flex items-start gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-rhuBlue-100 flex items-center justify-center text-rhuBlue-700 flex-shrink-0 cursor-pointer" onclick="showRecordDetail('${escapeHtml(r.id)}')">
+                                <i class="fas fa-file-medical text-base"></i>
+                            </div>
+                            <div class="flex-1 min-w-0 cursor-pointer" onclick="showRecordDetail('${escapeHtml(r.id)}')">
+                                <p class="text-sm font-extrabold text-slate-900 truncate">${escapeHtml(r.title || 'Medical Document')}</p>
+                                <p class="text-[11px] text-slate-600 mt-0.5 truncate">Dr. ${escapeHtml(r.doctorName || '—')} • ${escapeHtml(r.doctorSpec || '')}</p>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase mt-1">${escapeHtml(r.date || '')}</p>
+                            </div>
+                            <button onclick="downloadRecord('${escapeHtml(r.id)}')" class="w-9 h-9 rounded-xl bg-rhuBlue-600 hover:bg-rhuBlue-700 text-white flex items-center justify-center flex-shrink-0" title="Download document">
+                                <i class="fas fa-download text-xs"></i>
+                            </button>
+                            <i class="fas fa-chevron-right text-slate-400 text-xs self-center cursor-pointer" onclick="showRecordDetail('${escapeHtml(r.id)}')"></i>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('myFilesModal').classList.remove('hidden');
+        }
+
+        function closeMyFilesModal() {
+            document.getElementById('myFilesModal').classList.add('hidden');
+        }
+
+        // ====== UPDATED: Show Medical Certificate in Modal ======
+        function showRecordDetail(recordId) {
+            const r = allPatientRecords.find(x => x.id === recordId);
+            if (!r) { showToast('Not Found', 'Document not found.'); return; }
+
+            currentRecordView = r;
+
+            const content = document.getElementById('recordDetailContent');
+            const safe = (v) => escapeHtml(v || '—');
+            
+            // Extract data from the notes field for parsing
+            const notes = r.notes || '';
+            
+            // Try to extract structured data from notes
+            const nameMatch = notes.match(/certify that\s+([^,]+)/i);
+            const ageMatch = notes.match(/(\d+)\s+years old/i);
+            const genderMatch = notes.match(/years old,\s+(\w+)/i);
+            const addressMatch = notes.match(/resident of\s+([^,]+?)(?=\s+has been)/i);
+            const diagnosisMatch = notes.match(/found to be\s+([^.]+)/i);
+            const requestedByMatch = notes.match(/request of\s+([\s\S]*?)(?:\.\s*For whatever purpose|$)/i);
+
+            const patientName = nameMatch ? nameMatch[1].trim() : (r.patientName || '—');
+            const age = ageMatch ? ageMatch[1] : '—';
+            const gender = genderMatch ? genderMatch[1] : '—';
+            const address = addressMatch ? addressMatch[1].trim() : '—';
+            const diagnosis = diagnosisMatch ? diagnosisMatch[1].trim() : (r.diagnosis || '—');
+            const requestedBy = cleanRequestedBy(r.requestedBy || (requestedByMatch ? requestedByMatch[1] : ''));
+
+            content.innerHTML = `
+                <div class="cert-view-wrapper">
+                    <div class="cert-view-header">
+                        <img src="https://iili.io/nEnyd2S.png" alt="San Isidro Logo" onerror="this.onerror=null; this.src='https://iili.io/nRCHCIs.png';">
+                        <div class="title-block">
+                            <p>Republic of the Philippines</p>
+                            <p>Municipality of San Isidro</p>
+                            <p>Province of Nueva Ecija</p>
+                            <h2>Municipal Health Office</h2>
+                            <h3>Medical Certificate</h3>
+                        </div>
+                    </div>
+
+                    <div class="cert-view-body">
+                        <div style="display:flex; justify-content:flex-end; margin-bottom:2rem;">
+                            <div style="text-align:center; border-bottom:1px solid #64748b; padding:0 2rem 0.25rem 2rem; min-width:150px;">
+                                ${safe(r.date || '')}
+                            </div>
+                        </div>
+
+                        <p style="margin-bottom:1.5rem;">To Whom It May Concern;</p>
+
+                        <div style="line-height:2.4;">
+                            <div class="cert-line">
+                                <span class="label">This is to certify that</span>
+                                <span class="value long">${safe(patientName)}</span>
+                                <span class="label">,</span>
+                            </div>
+                            <div class="cert-line">
+                                <span class="value short" style="text-align:center;">${safe(age)}</span>
+                                <span class="label">years old,</span>
+                                <span class="value short" style="text-align:center;">${safe(gender)}</span>
+                                <span class="label">, a resident of</span>
+                            </div>
+                            <div class="cert-line">
+                                <span class="value long">${safe(address)}</span>
+                                <span class="label">has been examined & found to be</span>
+                            </div>
+                            <div class="cert-line">
+                                <span class="value long">${safe(diagnosis)}</span>
+                                <span class="label">.</span>
+                            </div>
+                        </div>
+
+                        <div style="margin-top:1.5rem; line-height:2.4;">
+                            <div class="cert-line">
+                                <span class="label">This certification was issued upon request of</span>
+                                <span class="value long">${safe(requestedBy)}</span>
+                                <span class="label">,</span>
+                            </div>
+                            <p style="margin-top:0.5rem;">For whatever purpose it may serve except legal purposes.</p>
+                        </div>
+
+                        <div class="cert-view-footer" style="border-top:none; padding:0; margin-top:2.5rem; background:transparent; justify-content:flex-end;">
+                            <div class="sig-block">
+                                <div class="name">${safe(r.doctorName || 'Lorenza D. Valmonte, MD')}</div>
+                                <div class="role">Municipal Health Officer</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('recordDetailModal').classList.remove('hidden');
+        }
+
+        function closeRecordDetailModal() {
+            document.getElementById('recordDetailModal').classList.add('hidden');
+            currentRecordView = null;
+        }
+
+        function buildRecordHTML(r) {
+            const safe = (v) => escapeHtml(v || '—');
+            const today = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+            
+            // Parse notes for certificate data
+            const notes = r.notes || '';
+            const nameMatch = notes.match(/certify that\s+([^,]+)/i);
+            const ageMatch = notes.match(/(\d+)\s+years old/i);
+            const genderMatch = notes.match(/years old,\s+(\w+)/i);
+            const addressMatch = notes.match(/resident of\s+([^,]+?)(?=\s+has been)/i);
+            const diagnosisMatch = notes.match(/found to be\s+([^.]+)/i);
+            const requestedByMatch = notes.match(/request of\s+([\s\S]*?)(?:\.\s*For whatever purpose|$)/i);
+
+            const patientName = nameMatch ? nameMatch[1].trim() : (r.patientName || '—');
+            const age = ageMatch ? ageMatch[1] : '—';
+            const gender = genderMatch ? genderMatch[1] : '—';
+            const address = addressMatch ? addressMatch[1].trim() : '—';
+            const diagnosis = diagnosisMatch ? diagnosisMatch[1].trim() : (r.diagnosis || '—');
+            const requestedBy = cleanRequestedBy(r.requestedBy || (requestedByMatch ? requestedByMatch[1] : ''));
+
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Medical Certificate - ${safe(patientName)}</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: 'Times New Roman', serif; background:#f1f5f9; padding:24px; color:#0f172a; }
+  .sheet { max-width: 800px; margin: 0 auto; background:#fff; border:2px solid #0f766e; border-radius:8px; overflow:hidden; }
+  .head { background:#fff; color:#0f766e; padding:18px 22px; display:flex; align-items:center; gap:14px; border-bottom: 2px solid #0f766e; }
+  .head .logo { height: 64px; width: auto; }
+  .head h1 { margin:0; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; }
+  .head h2 { margin:2px 0 0; font-size:20px; font-weight:800; }
+  .head h3 { margin:4px 0 0; font-size:24px; font-weight:800; letter-spacing:0.1em; }
+  .body { padding:22px 28px; }
+  .line { display:flex; align-items:baseline; gap:6px; margin-bottom:10px; font-size:15px; line-height:2.4; }
+  .line .label { white-space:nowrap; }
+  .line .value { border-bottom:1px solid #64748b; padding:0 4px; min-width:60px; font-weight:600; }
+  .line .value.long { flex:1; min-width:150px; }
+  .line .value.short { min-width:60px; text-align:center; }
+  .date-block { display:flex; justify-content:flex-end; margin-bottom:32px; }
+  .date-block .date-val { border-bottom:1px solid #64748b; padding:0 32px 4px 32px; min-width:150px; text-align:center; }
+  .sig { display:flex; justify-content:flex-end; margin-top:40px; }
+  .sig .block { text-align:center; }
+  .sig .name { font-weight:700; font-size:15px; border-top:1px solid #1e293b; padding-top:6px; margin-top:32px; min-width:220px; }
+  .sig .role { font-size:12px; margin-top:2px; }
+  .foot { display:flex; justify-content:space-between; padding:12px 22px; border-top:1px solid #e2e8f0; background:#f8fafc; font-size:11px; color:#475569; }
+  @media print {
+    body { background:#fff; padding:0; }
+    .sheet { border:none; border-radius:0; }
+  }
+</style>
+</head>
+<body>
+  <div class="sheet">
+    <div class="head">
+      <img src="https://iili.io/nEnyd2S.png" class="logo" alt="San Isidro Logo" onerror="this.onerror=null; this.src='https://iili.io/nRCHCIs.png';">
+      <div style="flex:1">
+        <h1>Republic of the Philippines</h1>
+        <h1>Municipality of San Isidro</h1>
+        <h1>Province of Nueva Ecija</h1>
+        <h2>Municipal Health Office</h2>
+        <h3>Medical Certificate</h3>
+      </div>
+    </div>
+
+    <div class="body">
+      <div class="date-block">
+        <div class="date-val">${safe(r.date || today)}</div>
+      </div>
+
+      <p style="margin-bottom:24px; font-size:15px;">To Whom It May Concern;</p>
+
+      <div class="line">
+        <span class="label">This is to certify that</span>
+        <span class="value long">${safe(patientName)}</span>
+        <span class="label">,</span>
+      </div>
+      <div class="line">
+        <span class="value short">${safe(age)}</span>
+        <span class="label">years old,</span>
+        <span class="value short">${safe(gender)}</span>
+        <span class="label">, a resident of</span>
+      </div>
+      <div class="line">
+        <span class="value long">${safe(address)}</span>
+        <span class="label">has been examined & found to be</span>
+      </div>
+      <div class="line">
+        <span class="value long">${safe(diagnosis)}</span>
+        <span class="label">.</span>
+      </div>
+
+      <div style="margin-top:24px;">
+        <div class="line">
+          <span class="label">This certification was issued upon request of</span>
+          <span class="value long">${safe(requestedBy)}</span>
+          <span class="label">,</span>
+        </div>
+        <p style="font-size:15px;">For whatever purpose it may serve except legal purposes.</p>
+      </div>
+
+      <div class="sig">
+        <div class="block">
+          <div class="name">${safe(r.doctorName || 'Lorenza D. Valmonte, MD')}</div>
+          <div class="role">Municipal Health Officer</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="foot">
+      <span>Record ID: ${safe(r.recordId || r.id)}</span>
+      <span>© 2026 RHU San Isidro Medical Center</span>
+    </div>
+  </div>
+</body>
+</html>`;
+        }
+
+        function sanitizeFileName(s) {
+            return String(s || '').replace(/[\\/:*?"<>|]+/g, '_').replace(/\s+/g, '_').slice(0, 60);
+        }
+
+        function cleanRequestedBy(value) {
+            const purposeClause = /for whatever purpose it may serve except legal purposes\.?/i;
+            return String(value || '')
+                .split(purposeClause)[0]
+                .replace(/[\s.,;:]+$/, '')
+                .trim() || 'the patient';
+        }
+
+        function downloadRecord(recordId) {
+            const r = allPatientRecords.find(x => x.id === recordId);
+            if (!r) { showToast('Not Found', 'Document not found.'); return; }
+            try {
+                const html = buildRecordHTML(r);
+                const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `RHU-MedicalCertificate_${sanitizeFileName(r.recordId || r.id)}_${sanitizeFileName(r.patientName)}.html`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 2000);
+                showToast('Downloaded', 'Document saved. Open it in your browser or print to PDF.');
+            } catch (err) {
+                console.error(err);
+                showToast('Download Failed', 'Could not generate the document.');
+            }
+        }
+
+        function downloadCurrentRecord() {
+            if (!currentRecordView) { showToast('No Document', 'Please open a document first.'); return; }
+            downloadRecord(currentRecordView.id);
+        }
+
+        function getMyNotifications() {
+            if (!currentUser) return [];
+            const userEmail = normalizeStr(currentUser.email);
+            return allMessages
+                .filter(m => {
+                    const toEmail = normalizeStr(m.to);
+                    const fromName = normalizeStr(m.from);
+                    const msgType = (m.type || '').toString().toLowerCase();
+                    if (!toEmail) return false;
+                    if (toEmail !== userEmail) return false;
+                    if (msgType === 'auto_booking' || msgType === 'patient_record') return false;
+                    if (fromName === 'system') return false;
+                    return true;
+                })
+                .sort((a,b) => (b.createdAt||'').localeCompare(a.createdAt||''));
+        }
+
+        function updateNotifBadge() {
+            const badge = document.getElementById('notifBadge');
+            if (!badge) return;
+            const msgs = getMyNotifications();
+            const readIds = getReadNotifIds();
+            const unread = msgs.filter(m => !readIds.has(m.id)).length;
+
+            if (unread > 0) {
+                badge.textContent = unread > 9 ? '9+' : String(unread);
+                badge.classList.remove('hidden');
+                badge.classList.add('flex');
+            } else {
+                badge.classList.add('hidden');
+                badge.classList.remove('flex');
+            }
+        }
+
+        function toggleNotifPanel() {
+            const panel = document.getElementById('notifPanel');
+            const isHidden = panel.classList.contains('hidden');
+            if (isHidden) {
+                renderNotifPanel();
+                panel.classList.remove('hidden');
+            } else {
+                panel.classList.add('hidden');
+            }
+        }
+        function closeNotifPanel() {
+            document.getElementById('notifPanel').classList.add('hidden');
+        }
+
+        function renderNotifPanel() {
+            const list = document.getElementById('notifList');
+            const empty = document.getElementById('notifEmpty');
+            const msgs = getMyNotifications();
+            const readIds = getReadNotifIds();
+
+            if (msgs.length === 0) {
+                list.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+
+            list.innerHTML = msgs.map(m => {
+                const isUnread = !readIds.has(m.id);
+                return `
+                    <div class="p-3 rounded-xl border ${isUnread ? 'bg-sky-50 border-sky-200' : 'bg-slate-50 border-slate-200'} cursor-pointer"
+                         onclick="markNotifRead('${escapeHtml(m.id)}')">
+                        <div class="flex items-start gap-3">
+                            <div class="w-9 h-9 rounded-xl ${isUnread ? 'bg-sky-100 text-sky-700' : 'bg-white text-slate-500'} border ${isUnread ? 'border-sky-300' : 'border-slate-200'} flex items-center justify-center flex-shrink-0">
+                                <i class="fas ${m.type === 'admin_qr' ? 'fa-qrcode' : 'fa-user-doctor'} text-sm"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between gap-2">
+                                    <p class="text-xs font-extrabold text-slate-900 truncate">${escapeHtml(m.from || 'Doctor')}</p>
+                                    ${isUnread ? `<span class="w-2 h-2 rounded-full bg-sky-500 flex-shrink-0"></span>` : ''}
+                                </div>
+                                <p class="text-[11px] text-slate-700 mt-1 leading-relaxed break-words">${escapeHtml(m.text || '')}</p>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase mt-1">${escapeHtml(m.date || '')}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function markNotifRead(id) {
+            if (!id) return;
+            const readIds = getReadNotifIds();
+            readIds.add(id);
+            saveReadNotifIds(readIds);
+            renderNotifPanel();
+            updateNotifBadge();
+        }
+
+        function markAllNotificationsRead() {
+            const msgs = getMyNotifications();
+            const readIds = getReadNotifIds();
+            msgs.forEach(m => readIds.add(m.id));
+            saveReadNotifIds(readIds);
+            renderNotifPanel();
+            updateNotifBadge();
+            showToast('Notifications', 'All marked as read.');
+        }
+
+        function showNotifications() { toggleNotifPanel(); }
+
+        function consultNow() {
+            if (allDoctors.length === 0) {
+                showToast('No Doctors', 'No doctors available at the moment.');
+                return;
+            }
+            const doctorsBtn = document.querySelectorAll('.bottom-nav-item')[2];
+            if (doctorsBtn) switchTab(doctorsBtn, 'doctors');
+            showToast('Consultation', 'Select a doctor to book a consultation.');
+        }
+
+        function renderDoctorsList() {
+            const containers = [
+                document.getElementById('homeDoctorsListContainer'),
+                document.getElementById('doctorsListContainer')
+            ].filter(Boolean);
+            if (containers.length === 0) return;
+
+            if (allDoctors.length === 0) {
+                const emptyState = `
+                    <div class="text-center py-8">
+                        <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mx-auto mb-3 border border-slate-200">
+                            <i class="fas fa-user-doctor text-2xl"></i>
+                        </div>
+                        <p class="text-sm font-extrabold text-slate-700 uppercase tracking-wide">No doctors registered yet</p>
+                        <p class="text-xs font-medium text-slate-500 mt-1">Doctors will appear here once the admin creates their accounts.</p>
+                        <button onclick="location.reload()" class="mt-3 px-4 py-2 bg-rhuBlue-600 hover:bg-rhuBlue-700 text-white text-xs font-bold rounded-xl transition-colors">
+                            <i class="fas fa-rotate-right mr-1"></i> Refresh
+                        </button>
+                    </div>
+                `;
+                containers.forEach(container => { container.innerHTML = emptyState; });
+                return;
+            }
+
+            const sorted = [...allDoctors].sort((a,b) => (a.fullName || '').localeCompare(b.fullName || ''));
+
+            const doctorCards = sorted.map(d => {
+                const specs = getDoctorSpecializations(d);
+                const specText = specs.length > 0 ? specs.join(', ') : 'No specialization';
+                const availability = getDoctorAvailability(d);
+                return `
+                    <button ${availability.available ? `onclick="quickBookDoctor('${escapeHtml(d.fullName)}')"` : 'disabled'} class="w-full flex items-center justify-between gap-3 p-3.5 rounded-2xl border transition-colors ${availability.available ? 'bg-slate-50 hover:bg-slate-100 border-slate-200 cursor-pointer' : 'bg-red-50 border-red-200 cursor-not-allowed'}">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center ${availability.available ? 'text-rhuBlue-700' : 'text-red-600'} overflow-hidden flex-shrink-0">
+                                ${d.pictureBase64 ? `<img src="${d.pictureBase64}" class="w-full h-full object-cover rounded-xl" />` : `<i class="fas fa-user-doctor text-sm"></i>`}
+                            </div>
+                            <div class="text-left min-w-0">
+                                <p class="text-sm font-bold ${availability.available ? 'text-slate-800' : 'text-red-700'} truncate">${escapeHtml(d.fullName)}</p>
+                                <p class="text-[10px] font-semibold text-slate-500 truncate">${escapeHtml(specText)}</p>
+                            </div>
+                        </div>
+                        <span class="text-[9px] font-extrabold uppercase ${availability.available ? 'text-emerald-700' : 'text-red-700'}">${availability.label}</span>
+                    </button>
+                `;
+            }).join('');
+            containers.forEach(container => { container.innerHTML = doctorCards; });
+        }
+
+        function quickBookDoctor(doctorName) {
+            const doctor = allDoctors.find(d => d.fullName === doctorName);
+            if (!getDoctorAvailability(doctor).available) {
+                showToast('Doctor Unavailable', 'Please choose a doctor with an open schedule.');
+                renderDoctorsList();
+                return;
+            }
+            openAppointmentForm(doctorName);
+            showToast('Doctor Selected', `Choose a specialization for ${doctorName}.`);
+        }
+
+        function renderMessagesList() {
+            const messagesList = document.getElementById('messagesList');
+            const messagesEmpty = document.getElementById('messagesEmpty');
+            const msgBadge = document.getElementById('msgBadge');
+            if (!messagesList) return;
+
+            const userEmail = currentUser ? normalizeStr(currentUser.email) : '';
+
+            if (!userEmail) {
+                messagesList.innerHTML = '';
+                messagesEmpty.classList.remove('hidden');
+                if (msgBadge) msgBadge.classList.add('hidden');
+                return;
+            }
+
+            const msgs = allMessages.filter(m => {
+                const toEmail = normalizeStr(m.to);
+                const fromName = normalizeStr(m.from);
+                const msgType = (m.type || '').toString().toLowerCase();
+                if (!toEmail) return false;
+                if (toEmail !== userEmail) return false;
+                if (msgType === 'auto_booking' || msgType === 'patient_record') return false;
+                if (fromName === 'system') return false;
+                return true;
+            });
+
+            msgs.sort((a,b) => (b.createdAt||'').localeCompare(a.createdAt||''));
+
+            if (msgs.length === 0) {
+                messagesList.innerHTML = '';
+                messagesEmpty.classList.remove('hidden');
+                if (msgBadge) msgBadge.classList.add('hidden');
+            } else {
+                messagesEmpty.classList.add('hidden');
+                if (msgBadge) msgBadge.classList.remove('hidden');
+
+                messagesList.innerHTML = msgs.map(m => {
+                    const isAdminQR = m.type === 'admin_qr' && m.qrImage;
+                    return `
+                    <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                        <div class="flex items-start gap-3">
+                            <div class="w-9 h-9 rounded-xl ${isAdminQR ? 'bg-rhuBlue-100 border-rhuBlue-300 text-rhuBlue-700' : 'bg-white border-slate-200 text-rhuBlue-700'} border flex items-center justify-center flex-shrink-0">
+                                <i class="fas ${isAdminQR ? 'fa-qrcode' : 'fa-user-doctor'} text-sm"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs font-extrabold text-slate-900">${escapeHtml(m.from || 'Doctor')}</p>
+                                <p class="text-xs text-slate-600 mt-1 leading-relaxed break-words whitespace-pre-wrap">${escapeHtml(m.text || '')}</p>
+                                ${isAdminQR ? `
+                                    <div class="mt-3 p-3 bg-white border-2 border-rhuBlue-500 rounded-xl text-center">
+                                        <img src="${m.qrImage}" class="w-44 h-44 mx-auto" alt="QR Code" />
+                                        ${m.qrRambol ? `<p class="text-[11px] font-bold text-rhuBlue-700 mt-2 tracking-widest">${escapeHtml(m.qrRambol)}</p>` : ''}
+                                    </div>
+                                ` : ''}
+                                <p class="text-[10px] font-bold text-slate-400 uppercase mt-1.5">${escapeHtml(m.date || '')}</p>
+                            </div>
+                        </div>
+                    </div>
+                `; }).join('');
+            }
+        }
+
+        window.initRegistrationListener = function() {
+            if (!window.__db) return;
+            const { collection, onSnapshot } = window.__firestoreFns;
+            onSnapshot(collection(window.__db, 'registrations'), (snapshot) => {
+                const list = [];
+                snapshot.forEach(docSnap => list.push(docSnap.data()));
+                localPendingRegistrations = list;
+                console.log(`📋 Loaded ${list.length} registrations`);
+            }, (error) => console.warn("Firestore snapshot error:", error));
+        };
+
+        window.initMessagesListener = function() {
+            if (!window.__db) return;
+            const { collection, onSnapshot } = window.__firestoreFns;
+            onSnapshot(collection(window.__db, 'messages'), (snapshot) => {
+                allMessages = [];
+                snapshot.forEach(docSnap => allMessages.push({ id: docSnap.id, ...docSnap.data() }));
+                console.log(`💬 Loaded ${allMessages.length} messages`);
+                renderMessagesList();
+                updateNotifBadge();
+                if (!document.getElementById('notifPanel').classList.contains('hidden')) {
+                    renderNotifPanel();
+                }
+            }, (error) => console.warn("Messages snapshot error:", error));
+        };
+
+        window.initPostsListener = function() {
+            if (!window.__db) return;
+            const { collection, onSnapshot } = window.__firestoreFns;
+            onSnapshot(collection(window.__db, 'posts'), (snapshot) => {
+                const container = document.getElementById('patientFeedContainer');
+                if (!container) return;
+                const posts = [];
+                snapshot.forEach(docSnap => posts.push({ id: docSnap.id, ...docSnap.data() }));
+                posts.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+
+                if (posts.length === 0) {
+                    container.innerHTML = `
+                        <div class="flex flex-col items-center justify-center py-10 text-center">
+                            <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3 border border-slate-200">
+                                <i class="fas fa-inbox text-2xl"></i>
+                            </div>
+                            <p class="text-sm font-extrabold text-slate-700 uppercase tracking-wide">POSTS NOT FOUND</p>
+                            <p class="text-xs font-medium text-slate-500 mt-1">No announcements or updates yet.</p>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = posts.map(p => `
+                        <div class="feed-post-card mb-4 last:mb-0">
+                            <div class="flex items-center gap-2.5 px-3.5 pt-3.5">
+                                <div class="w-9 h-9 rounded-full bg-rhuBlue-100 border border-rhuBlue-200 flex items-center justify-center text-rhuBlue-700 flex-shrink-0">
+                                    <i class="fas fa-user-doctor text-sm"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs font-extrabold text-slate-900 truncate">${escapeHtml(p.doctorName || 'Doctor')}</p>
+                                    <p class="text-[10px] text-slate-500 truncate">${escapeHtml(p.doctorSpec || 'Physician')} • ${escapeHtml(p.date || '')}</p>
+                                </div>
+                            </div>
+                            ${p.description ? `<div class="px-3.5 py-3"><p class="text-xs text-slate-700 leading-relaxed break-words whitespace-pre-wrap">${escapeHtml(p.description)}</p></div>` : ''}
+                            ${p.imageBase64 ? `<div class="feed-post-image-wrapper"><img src="${p.imageBase64}" alt="Post image" loading="lazy" /></div>` : ''}
+                            <div class="px-3.5 pb-3.5 pt-2"></div>
+                        </div>
+                    `).join('');
+                }
+            }, (error) => console.warn("Posts snapshot error:", error));
+        };
+
+        window.initSchedulesListener = function() {
+            if (!window.__db) return;
+            const { collection, onSnapshot } = window.__firestoreFns;
+            onSnapshot(collection(window.__db, 'doctorSchedules'), (snapshot) => {
+                allDoctorSchedules = [];
+                snapshot.forEach(docSnap => allDoctorSchedules.push({ id: docSnap.id, ...docSnap.data() }));
+                console.log(`🗓️ Loaded ${allDoctorSchedules.length} doctor schedules`);
+                updateAvailabilityNotice();
+                updateDoctorAvailabilityUI();
+                renderDoctorsList();
+                const apptForm = document.getElementById('appointmentView');
+                if (apptForm && !apptForm.classList.contains('hidden')) populateDoctorDropdown();
+                const apptView = document.getElementById('appointmentView');
+                if (apptView && !apptView.classList.contains('hidden')) {
+                    if (calScheduleMode && document.getElementById('apptDoctor').value && document.getElementById('apptSpecialization').value) {
+                        renderCalendar();
+                    }
+                }
+            }, (error) => console.warn("Schedules snapshot error:", error));
+        };
+
+        window.initDoctorsListener = function() {
+            if (!window.__db) return;
+            const { collection, onSnapshot } = window.__firestoreFns;
+            onSnapshot(collection(window.__db, 'doctors'), (snapshot) => {
+                allDoctors = [];
+                snapshot.forEach(docSnap => allDoctors.push({ id: docSnap.id, ...docSnap.data() }));
+                console.log(`🩺 Loaded ${allDoctors.length} doctors`);
+                updateAvailabilityNotice();
+                updateDoctorAvailabilityUI();
+                renderDoctorsList();
+
+                const apptView = document.getElementById('appointmentView');
+                if (apptView && !apptView.classList.contains('hidden')) {
+                    populateDoctorDropdown();
+                }
+
+            }, (error) => {
+                console.error("Doctors snapshot error:", error);
+                const errorState = `
+                    <div class="text-center py-6">
+                        <p class="text-xs font-semibold text-red-700">Could not load doctors. Please refresh and try again.</p>
+                    </div>
+                `;
+                ['homeDoctorsListContainer', 'doctorsListContainer'].forEach(id => {
+                    const container = document.getElementById(id);
+                    if (container) container.innerHTML = errorState;
+                });
+            });
+        };
+
+        window.initPatientRecordsListener = function() {
+            if (!window.__db) return;
+            const { collection, onSnapshot } = window.__firestoreFns;
+            onSnapshot(collection(window.__db, 'patientRecords'), (snapshot) => {
+                allPatientRecords = [];
+                snapshot.forEach(docSnap => allPatientRecords.push({ id: docSnap.id, ...docSnap.data() }));
+                console.log(`📄 Loaded ${allPatientRecords.length} patient records`);
+                updateFilesBadge();
+                const myFilesModal = document.getElementById('myFilesModal');
+                if (myFilesModal && !myFilesModal.classList.contains('hidden')) {
+                    showMyFiles();
+                }
+            }, (error) => console.warn("Patient records snapshot error:", error));
+        };
+
+        window.initAppointmentsListener = function() {
+            if (!window.__db) return;
+            const { collection, onSnapshot } = window.__firestoreFns;
+            onSnapshot(collection(window.__db, 'appointments'), (snapshot) => {
+                allAppointments = [];
+                snapshot.forEach(docSnap => allAppointments.push({ id: docSnap.id, ...docSnap.data() }));
+                console.log(`📅 Loaded ${allAppointments.length} appointments`);
+
+                const apptView = document.getElementById('appointmentView');
+                if (apptView && !apptView.classList.contains('hidden')) {
+                    // Re-render calendar if doctor+spec selected
+                    if (calScheduleMode) {
+                        renderCalendar();
+                    }
+                }
+
+                if (currentUser) {
+                    const userEmail = normalizeStr(currentUser.email);
+                    const userPatientNumber = normalizeStr(currentUser.patientNumber);
+                    const mine = allAppointments
+                        .filter(a => 
+                            normalizeStr(a.email) === userEmail || 
+                            normalizeStr(a.patientEmail) === userEmail || 
+                            normalizeStr(a.patientNumber) === userPatientNumber
+                        )
+                        .sort((a,b) => (b.createdAt||'').localeCompare(a.createdAt||''));
+                    if (mine.length > 0) {
+                        currentAppointment = mine[0];
+                    }
+                }
+                updateDoctorAvailabilityUI();
+                updateAvailabilityNotice();
+                renderDoctorsList();
+                if (apptView && !apptView.classList.contains('hidden')) populateDoctorDropdown();
+            }, (error) => console.warn("Appointments snapshot error:", error));
+        };
+
+        setInterval(() => {
+            updateDoctorAvailabilityUI();
+            updateAvailabilityNotice();
+            const apptView = document.getElementById('appointmentView');
+            if (apptView && !apptView.classList.contains('hidden')) populateDoctorDropdown();
+            renderDoctorsList();
+        }, 30000);
+
+        document.addEventListener('click', (e) => {
+            const panel = document.getElementById('notifPanel');
+            const bell = e.target.closest('button[onclick="toggleNotifPanel()"]');
+            if (!panel || panel.classList.contains('hidden')) return;
+            if (panel.contains(e.target)) return;
+            if (bell) return;
+            panel.classList.add('hidden');
+        });
+    </script>
+</body>
+</html>
