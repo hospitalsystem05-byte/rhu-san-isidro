@@ -2190,62 +2190,237 @@
         }
 
         function showAppointmentDetails() {
-            const content = document.getElementById('appointmentDetailsContent');
-            if (!currentAppointment) {
-                content.innerHTML = `
-                    <div class="flex flex-col items-center justify-center py-8 text-center">
-                        <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3 border border-slate-200">
-                            <i class="fas fa-calendar-xmark text-2xl"></i>
-                        </div>
-                        <p class="text-sm font-extrabold text-slate-700 uppercase tracking-wide">NO APPOINTMENT YET</p>
-                        <p class="text-xs font-medium text-slate-500 mt-1">Book an appointment first to see your details here.</p>
-                    </div>
-                `;
-            } else {
-                const a = currentAppointment;
-                const appointmentStatus = getPatientAppointmentDisplayStatus(a);
-                const appointmentStatusClass = appointmentStatus === 'QUEUED'
+    const content = document.getElementById('appointmentDetailsContent');
+
+    const userEmail = normalizeStr(
+        currentUser?.email || currentProfile?.email || ''
+    );
+
+    const userPatientNumber = normalizeStr(
+        currentUser?.patientNumber || currentProfile?.patientNumber || ''
+    );
+
+    const mine = allAppointments
+        .filter(a =>
+            normalizeStr(a.email) === userEmail ||
+            normalizeStr(a.patientEmail) === userEmail ||
+            (
+                userPatientNumber &&
+                normalizeStr(a.patientNumber) === userPatientNumber
+            )
+        )
+        .sort((a, b) =>
+            (b.createdAt || '').localeCompare(a.createdAt || '')
+        );
+
+    if (!mine.length) {
+        content.innerHTML = `
+            <div class="flex flex-col items-center justify-center py-8 text-center">
+                <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3 border border-slate-200">
+                    <i class="fas fa-calendar-xmark text-2xl"></i>
+                </div>
+                <p class="text-sm font-extrabold text-slate-700 uppercase tracking-wide">
+                    NO APPOINTMENT YET
+                </p>
+                <p class="text-xs font-medium text-slate-500 mt-1">
+                    Book an appointment first to see your details here.
+                </p>
+            </div>
+        `;
+
+        document.getElementById('appointmentDetailsModal')
+            .classList.remove('hidden');
+        return;
+    }
+
+    content.innerHTML = `
+        <div class="space-y-3">
+
+            <div class="text-center pb-2">
+                <p class="text-xs font-bold text-slate-500">
+                    ${mine.length} APPOINTMENT${mine.length !== 1 ? 'S' : ''}
+                </p>
+                <p class="text-[11px] text-slate-400 mt-1">
+                    Tap an appointment to view its full details.
+                </p>
+            </div>
+
+            ${mine.map((a, index) => {
+                const status = getPatientAppointmentDisplayStatus(a);
+
+                const statusClass = status === 'QUEUED'
                     ? 'bg-sky-50 text-sky-700 border-sky-200'
-                    : appointmentStatus === 'CANCELLED'
+                    : status === 'CANCELLED'
                         ? 'bg-red-50 text-red-700 border-red-200'
-                        : appointmentStatus === 'FINISHED'
+                        : status === 'FINISHED'
                             ? 'bg-slate-100 text-slate-700 border-slate-300'
-                            : appointmentStatus === 'IN PROGRESS'
+                            : status === 'IN PROGRESS'
                                 ? 'bg-amber-50 text-amber-700 border-amber-200'
                                 : 'bg-emerald-50 text-emerald-700 border-emerald-200';
-                content.innerHTML = `
-                    <div class="flex flex-col items-center text-center pb-3 border-b border-slate-200">
-                        <div class="w-16 h-16 rounded-full bg-rhuBlue-100 flex items-center justify-center text-rhuBlue-700 mb-2">
-                            <i class="fas fa-calendar-check text-2xl"></i>
+
+                return `
+                    <div class="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm">
+
+                        <!-- CLICKABLE APPOINTMENT HEADER -->
+                        <button
+                            type="button"
+                            onclick="togglePatientAppointment('${escapeHtml(a.id)}')"
+                            class="w-full text-left p-4 hover:bg-slate-50 transition-all duration-200"
+                        >
+                            <div class="flex items-start justify-between gap-3">
+
+                                <div class="flex items-start gap-3 min-w-0">
+
+                                    <div class="w-10 h-10 flex-shrink-0 rounded-xl bg-rhuBlue-100 text-rhuBlue-700 flex items-center justify-center">
+                                        <i class="fas fa-calendar-check"></i>
+                                    </div>
+
+                                    <div class="min-w-0">
+                                        <p class="text-xs font-extrabold text-slate-900">
+                                            ${escapeHtml(a.appointmentId || 'Appointment')}
+                                        </p>
+
+                                        <p class="text-[11px] font-semibold text-slate-500 mt-1">
+                                            ${escapeHtml(a.appointmentDate || 'Date not specified')}
+                                        </p>
+
+                                        <p class="text-[11px] font-medium text-slate-500">
+                                            ${escapeHtml(a.appointmentTime || 'Time not specified')}
+                                        </p>
+
+                                        <p class="text-[11px] text-slate-600 mt-1">
+                                            ${escapeHtml(a.doctor || 'Doctor not assigned')}
+                                        </p>
+                                    </div>
+
+                                </div>
+
+                                <div class="flex flex-col items-end gap-2 flex-shrink-0">
+
+                                    <span class="text-[9px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-full border ${statusClass}">
+                                        ${escapeHtml(status)}
+                                    </span>
+
+                                    <i
+                                        id="appointmentChevron_${escapeHtml(a.id)}"
+                                        class="fas fa-chevron-down text-slate-400 text-xs transition-transform duration-200"
+                                    ></i>
+
+                                </div>
+
+                            </div>
+                        </button>
+
+                        <!-- EXPANDABLE DETAILS -->
+                        <div
+                            id="appointmentDetails_${escapeHtml(a.id)}"
+                            class="hidden border-t border-slate-200 p-4 bg-slate-50"
+                        >
+                            <div class="flex flex-col items-center text-center pb-3 border-b border-slate-200">
+
+                                <div class="w-14 h-14 rounded-full bg-rhuBlue-100 flex items-center justify-center text-rhuBlue-700 mb-2">
+                                    <i class="fas fa-calendar-check text-xl"></i>
+                                </div>
+
+                                <p class="text-sm font-extrabold text-slate-900">
+                                    ${escapeHtml(a.fullName || 'N/A')}
+                                </p>
+
+                                <p class="text-[11px] font-bold text-rhuBlue-700 uppercase tracking-widest mt-0.5">
+                                    ${escapeHtml(a.appointmentId || 'N/A')}
+                                </p>
+
+                                <span class="inline-block mt-2 text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full border ${statusClass}">
+                                    ${escapeHtml(status)}
+                                </span>
+
+                            </div>
+
+                            <div class="space-y-2 pt-2">
+
+                                ${profileRow('Full Name', a.fullName)}
+                                ${profileRow('Address', a.address)}
+                                ${profileRow('Contact', a.contact)}
+                                ${profileRow('Gender', a.gender)}
+                                ${profileRow('Birthdate', a.birthday)}
+                                ${profileRow('Age', a.age)}
+                                ${profileRow('Email', a.email)}
+                                ${profileRow('Department', a.department)}
+                                ${profileRow('Specialization', a.specialization)}
+                                ${profileRow('Doctor', a.doctor)}
+                                ${profileRow('Appointment Date', a.appointmentDate)}
+                                ${profileRow('Schedule Time', a.appointmentTime)}
+
+                            </div>
+
+                            <div class="mt-3 p-3 bg-sky-50 border border-sky-200 rounded-xl text-center">
+
+                                <i class="fas fa-qrcode text-sky-600 text-xl mb-1"></i>
+
+                                <p class="text-[11px] text-sky-800 font-bold">
+                                    Your QR code will be sent by the RHU Admin.
+                                </p>
+
+                                <p class="text-[10px] text-sky-700 mt-1">
+                                    Check your Messages section or tap MY QR below to view it once received.
+                                </p>
+
+                            </div>
+
                         </div>
-                        <p class="text-sm font-extrabold text-slate-900">${escapeHtml(a.fullName || 'N/A')}</p>
-                        <p class="text-[11px] font-bold text-rhuBlue-700 uppercase tracking-widest mt-0.5">${escapeHtml(a.appointmentId || 'N/A')}</p>
-                        <span class="inline-block mt-2 text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full border ${appointmentStatusClass}">${escapeHtml(appointmentStatus)}</span>
-                    </div>
-                    <div class="space-y-2 pt-1">
-                        ${profileRow('Full Name', a.fullName)}
-                        ${profileRow('Address', a.address)}
-                        ${profileRow('Contact', a.contact)}
-                        ${profileRow('Gender', a.gender)}
-                        ${profileRow('Birthdate', a.birthday)}
-                        ${profileRow('Age', a.age)}
-                        ${profileRow('Email', a.email)}
-                        ${profileRow('Department', a.department)}
-                        ${profileRow('Specialization', a.specialization)}
-                        ${profileRow('Doctor', a.doctor)}
-                        ${profileRow('Appointment Date', a.appointmentDate)}
-                        ${profileRow('Schedule Time', a.appointmentTime)}
-                    </div>
-                    <div class="pt-3 p-3 bg-sky-50 border border-sky-200 rounded-xl text-center">
-                        <i class="fas fa-qrcode text-sky-600 text-xl mb-1"></i>
-                        <p class="text-[11px] text-sky-800 font-bold">Your QR code will be sent by the RHU Admin.</p>
-                        <p class="text-[10px] text-sky-700 mt-1">Check your <strong>Messages</strong> section or tap <strong>MY QR</strong> below to view it once received.</p>
+
                     </div>
                 `;
-            }
-            document.getElementById('appointmentDetailsModal').classList.remove('hidden');
-        }
+            }).join('')}
 
+        </div>
+    `;
+
+    document.getElementById('appointmentDetailsModal')
+        .classList.remove('hidden');
+}
+
+
+function togglePatientAppointment(appointmentId) {
+
+    const details = document.getElementById(
+        `appointmentDetails_${appointmentId}`
+    );
+
+    const chevron = document.getElementById(
+        `appointmentChevron_${appointmentId}`
+    );
+
+    if (!details) return;
+
+    const isCurrentlyOpen = !details.classList.contains('hidden');
+
+    // Close all currently expanded appointments
+    document.querySelectorAll('[id^="appointmentDetails_"]').forEach(el => {
+        el.classList.add('hidden');
+    });
+
+    document.querySelectorAll('[id^="appointmentChevron_"]').forEach(el => {
+        el.classList.remove('rotate-180');
+    });
+
+    // If the clicked card was already open, leave it closed
+    if (isCurrentlyOpen) return;
+
+    // Open the clicked appointment
+    details.classList.remove('hidden');
+
+    if (chevron) {
+        chevron.classList.add('rotate-180');
+    }
+
+    // Update currently selected appointment
+    currentAppointment = allAppointments.find(
+        a => a.id === appointmentId
+    ) || null;
+}
+
+        
         function getPatientAppointmentDisplayStatus(appointment) {
             const status = (appointment?.status || 'CONFIRMED').toUpperCase();
             if (status === 'CANCELLED') return 'CANCELLED';
